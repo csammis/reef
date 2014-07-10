@@ -6,7 +6,7 @@ class Measurement(Base) :
 
     __tablename__ = 'Measurements'
     id = Column(Integer, primary_key = True)
-    measurement_time = Column(DateTime, default=func.now())
+    measurement_time = Column(DateTime, index=True, default=func.now())
     measurement_type = Column(Integer)
     value = Column(Float, nullable = True)
 

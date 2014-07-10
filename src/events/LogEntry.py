@@ -6,7 +6,7 @@ class LogEntry(Base) :
 
     __tablename__ = 'LogEntries'
     id = Column(Integer, primary_key = True)
-    entry_time = Column(DateTime, default=func.now())
+    entry_time = Column(DateTime, index=True, default=func.now())
     entry = Column(UnicodeText, nullable = True)
 
     def __init__(self, entry, entry_time = None) :
