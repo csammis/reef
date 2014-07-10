@@ -20,12 +20,12 @@ class EventManager(object) :
         if timerange is not None :
             query = query.filter(Measurement.measurement_time.\
                     between(*pad_tuple(timerange, datetime.datetime.utcnow(), 2)))
-        return query.all()
+        return query.order_by(Measurement.measurement_time.asc()).all()
 
     def get_log_entries(self, timerange = None) :
         query = DBSession.query(LogEntry)
         if timerange is not None :
             query = query.filter(LogEntry.entry_time.\
                     between(*pad_tuple(timerange, datetime.datetime.utcnow(), 2)))
-        return query.all()
+        return query.order_by(LogEntry.entry_time.asc()).all()
 
