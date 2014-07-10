@@ -8,8 +8,8 @@ def pad_tuple(tpl, value, length) :
 
 class EventManager(object) :
 
-    def __init__(self) :
-        initialize_sql()
+    def __init__(self, dbname) :
+        initialize_sql(dbname)
 
     def add(self, obj) :
         DBSession.add(obj)
