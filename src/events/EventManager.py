@@ -3,6 +3,9 @@ from events.Measurement import Measurement
 from events.LogEntry import LogEntry
 import datetime
 
+def pad_tuple(tpl, value, length) :
+    return tpl + (value,) * (length - len(tpl))
+
 class EventManager(object) :
 
     def __init__(self) :
@@ -15,16 +18,14 @@ class EventManager(object) :
     def get_measurements(self, timerange = None) :
         query = DBSession.query(Measurement)
         if timerange is not None :
-            timerange += (datetime.datetime.now(),) * (2 - len(timerange))
-            query = query.filter(Measurement.measurement_time.between(*timerange))
+            query = query.filter(Measurement.measurement_time.\
+                    between(*pad_tuple(timerange, datetime.datetime.utcnow(), 2)))
         return query.all()
 
     def get_log_entries(self, timerange = None) :
         query = DBSession.query(LogEntry)
         if timerange is not None :
-            start, end = self.pad_with(timerange, datetime.datetime.now(), 2)
-            query = query.filter(LogEntry.entry_time.between(start, end))
+            query = query.filter(LogEntry.entry_time.\
+                    between(*pad_tuple(timerange, datetime.datetime.utcnow(), 2)))
         return query.all()
 
-    def pad_with(self, tpl, value, length) :
-        return tpl + (value,) * (length - len(tpl))
