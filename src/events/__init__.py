@@ -10,3 +10,7 @@ def initialize_sql():
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
+
+from events.Measurement import Measurement
+from events.LogEntry import LogEntry
+from events.EventManager import EventManager
