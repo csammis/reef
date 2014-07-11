@@ -3,9 +3,6 @@ from events.Measurement import Measurement
 from events.LogEntry import LogEntry
 import datetime
 
-def pad_tuple(tpl, value, length):
-    return tpl + (value,) * (length - len(tpl))
-
 class EventManager(object):
 
     def __init__(self, dbname):
@@ -25,10 +22,11 @@ class EventManager(object):
             query = query.filter(Measurement.measurement_time <= timerange['end'])
         return query.order_by(Measurement.measurement_time.asc()).all()
 
-    def get_log_entries(self, timerange = None):
+    def get_log_entries(self, timerange = {}):
         query = DBSession.query(LogEntry)
-        if timerange is not None:
-            query = query.filter(LogEntry.entry_time.\
-                    between(*pad_tuple(timerange, datetime.datetime.utcnow(), 2)))
+        if 'start' in timerange:
+            query = query.filter(LogEntry.entry_time >= timerange['start'])
+        if 'end' in timerange:
+            query = query.filter(LogEntry.entry_time <= timerange['end'])
         return query.order_by(LogEntry.entry_time.asc()).all()
 

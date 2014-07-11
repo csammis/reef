@@ -112,7 +112,7 @@ class TestEventManager(object):
     def test_get_logentry_greaterthan_time(self):
         TestEventManager.insert_log_entries()
 
-        trange = (datetime.datetime.fromtimestamp(100000),)
+        trange = {'start': datetime.datetime.fromtimestamp(100000)}
         l = TestEventManager._em.get_log_entries(trange)
         assert len(l) == 2
         assert l[0].entry_time < l[1].entry_time
@@ -120,7 +120,15 @@ class TestEventManager(object):
     def test_get_logentry_between_time(self):
         TestEventManager.insert_log_entries()
 
-        trange = (datetime.datetime.fromtimestamp(20), datetime.datetime.fromtimestamp(75000))
+        trange = {'start': datetime.datetime.fromtimestamp(20), 'end': datetime.datetime.fromtimestamp(75000)}
+        l = TestEventManager._em.get_log_entries(trange)
+        assert len(l) == 1
+        assert l[0].entry == 'ghi'
+
+    def test_get_logentry_lessthan_time(self):
+        TestEventManager.insert_log_entries()
+
+        trange = {'end': datetime.datetime.fromtimestamp(100000)}
         l = TestEventManager._em.get_log_entries(trange)
         assert len(l) == 1
         assert l[0].entry == 'ghi'
