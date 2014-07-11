@@ -57,16 +57,23 @@ class TestEventManager(object):
     def test_get_measurements_greaterthan_time(self):
         TestEventManager.insert_measurements()
         
-        trange = (datetime.datetime.fromtimestamp(100000), )
-        l = TestEventManager._em.get_measurements(timerange = trange)
+        l = TestEventManager._em.get_measurements(timerange = {'start': datetime.datetime.fromtimestamp(100000)})
         assert len(l) == 2
         assert l[0].measurement_time < l[1].measurement_time
 
     def test_get_measurements_between_time(self):
         TestEventManager.insert_measurements()
 
-        trange = (datetime.datetime.fromtimestamp(20), datetime.datetime.fromtimestamp(75000))
+        trange = {'start': datetime.datetime.fromtimestamp(20), 'end': datetime.datetime.fromtimestamp(75000)}
         l = TestEventManager._em.get_measurements(timerange = trange)
+        assert len(l) == 1
+        assert l[0].value == 7.33
+        assert l[0].measurement_type == events.Measurement.KH
+
+    def test_get_measurements_lessthan_time(self):
+        TestEventManager.insert_measurements()
+
+        l = TestEventManager._em.get_measurements(timerange = {'end': datetime.datetime.fromtimestamp(100000)})
         assert len(l) == 1
         assert l[0].value == 7.33
         assert l[0].measurement_type == events.Measurement.KH

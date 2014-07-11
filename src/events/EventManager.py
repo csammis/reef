@@ -15,13 +15,14 @@ class EventManager(object):
         DBSession.add(obj)
         DBSession.commit()
 
-    def get_measurements(self, parameters = None, timerange = None):
+    def get_measurements(self, parameters = None, timerange = {}):
         query = DBSession.query(Measurement)
         if parameters is not None:
             query = query.filter(Measurement.measurement_type.in_(parameters))
-        if timerange is not None:
-            query = query.filter(Measurement.measurement_time.\
-                    between(*pad_tuple(timerange, datetime.datetime.utcnow(), 2)))
+        if 'start' in timerange:
+            query = query.filter(Measurement.measurement_time >= timerange['start'])
+        if 'end' in timerange:
+            query = query.filter(Measurement.measurement_time <= timerange['end'])
         return query.order_by(Measurement.measurement_time.asc()).all()
 
     def get_log_entries(self, timerange = None):

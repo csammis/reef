@@ -19,22 +19,18 @@ def parameters():
     return 'this is where all the pretty graphs might go'
 
 def timerange_from_request():
-    trange = None
+    trange = { }
     try:
         if 'start' in request.args.keys():
             start = int(request.args['start'])
-        else:
-            start = 0
-        trange = (datetime.fromtimestamp(start),)
+            trange['start'] = datetime.fromtimestamp(start)
     except ValueError:
         abort(400)
 
     try:
         if 'end' in request.args.keys():
             end = int(request.args['end'])
-            trange += (datetime.fromtimestamp(end),)
-        else:
-            trange += (datetime.utcnow(),)
+            trange['end'] = datetime.fromtimestamp(end)
     except ValueError:
         abort(400)
 
@@ -51,10 +47,9 @@ class Measurements(restful.Resource):
     def get(self):
         trange = timerange_from_request()
         parameters = parameters_from_request()
-        return jsonify(time_start = trange[0], time_end = trange[1], \
-                events = event_manager.get_measurements(parameters = parameters, timerange = trange))
+        return jsonify(events = event_manager.get_measurements(parameters = parameters, timerange = trange))
 
-api.add_resource(Measurements, '/measurements')
+api.add_resource(Measurements, '/measurements/')
 
 if __name__ == '__main__':
     app.run(debug=True)
