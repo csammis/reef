@@ -17,25 +17,32 @@ def index():
 def measurements():
     return 'this is where all the pretty graphs might go'
 
+def timerange_from_request():
+    try:
+        start = int(request.args['start'])
+        trange = (datetime.fromtimestamp(start),)
+    except (KeyError, ValueError):
+        abort(400)
+
+    end = request.args.get('end', '')
+    if end != '':
+        try:
+            trange += (datetime.fromtimestamp(int(end)),)
+        except ValueError:
+            abort(400)
+
+    return trange
+
+
 @app.route('/measurements/<time_range>')
 def get_measurements(time_range):
     if time_range == 'all':
         events = event_manager.get_measurements()
     elif time_range == 'range':
-        try:
-            start = int(request.args['start'])
-            trange = (datetime.fromtimestamp(start),)
-        except (KeyError, ValueError):
-            abort(400)
-
-        end = request.args.get('end', '')
-        if end != '':
-            try:
-                trange += (datetime.fromtimestamp(int(end)),)
-            except ValueError:
-                abort(400)
-
+        trange = timerange_from_request()
         events = event_manager.get_measurements(trange)
+    else:
+        abort(400)
 
     return jsonify(range = time_range, events = events)
 
