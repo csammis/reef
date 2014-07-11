@@ -46,11 +46,19 @@ class TestEventManager(object):
         assert len(l) == 3
         assert l[0].measurement_time < l[1].measurement_time and l[1].measurement_time < l[2].measurement_time
 
+    def test_get_measurements_with_parameters(self):
+        TestEventManager.insert_measurements()
+
+        l = TestEventManager._em.get_measurements(parameters = [events.Measurement.CALCIUM, events.Measurement.KH])
+        assert len(l) == 2
+        assert l[0].measurement_type == events.Measurement.KH
+        assert l[1].measurement_type == events.Measurement.CALCIUM
+
     def test_get_measurements_greaterthan_time(self):
         TestEventManager.insert_measurements()
         
         trange = (datetime.datetime.fromtimestamp(100000), )
-        l = TestEventManager._em.get_measurements(trange)
+        l = TestEventManager._em.get_measurements(timerange = trange)
         assert len(l) == 2
         assert l[0].measurement_time < l[1].measurement_time
 
@@ -58,7 +66,7 @@ class TestEventManager(object):
         TestEventManager.insert_measurements()
 
         trange = (datetime.datetime.fromtimestamp(20), datetime.datetime.fromtimestamp(75000))
-        l = TestEventManager._em.get_measurements(trange)
+        l = TestEventManager._em.get_measurements(timerange = trange)
         assert len(l) == 1
         assert l[0].value == 7.33
         assert l[0].measurement_type == events.Measurement.KH
