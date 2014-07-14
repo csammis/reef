@@ -1,5 +1,5 @@
 (function() {
-    var WIDTH = 600;
+    var WIDTH = 1000;
     var HEIGHT = 400;
     var PADDING = 25;
 
@@ -10,7 +10,6 @@
                 .text('All Parameters');
 
     var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
-
 
     // Doing this quick + dirty because I don't want to drag in jquery right this second
     var req = new XMLHttpRequest;
@@ -25,14 +24,25 @@
 
     var renderJson = function(json) {
 
+        // Slice up the event data into measurement types
         var dataset = json.events;
+        var dataSplits = Object;
+        var measurementTypes = new Array();
+        for (var i = 0; i < dataset.length; i++) {
+            d = dataset[i];
+            if (dataSplits[d.measurement_type] === undefined) {
+                dataSplits[d.measurement_type] = new Array();
+                measurementTypes.push(d.measurement_type);
+            }
+            dataSplits[d.measurement_type].push(dataset[i]);
+        }
 
         var xScale = d3.time.scale()
-                        .range([PADDING, WIDTH - PADDING])
-                        .domain(d3.extent(dataset, function(d) { return timeFormat.parse(d.measurement_time); }));
+            .range([PADDING, WIDTH - PADDING])
+            .domain(d3.extent(dataset, function(d) { return timeFormat.parse(d.measurement_time); }));
         var yScale = d3.scale.linear()
-                        .range([HEIGHT - PADDING, PADDING])
-                        .domain(d3.extent(dataset, function(d) { return d.value; }));
+            .range([HEIGHT - PADDING, PADDING])
+            .domain(d3.extent(dataset, function(d) { return d.value; }));
 
         var xAxis = d3.svg.axis().scale(xScale).orient('bottom');
         var yAxis = d3.svg.axis().scale(yScale).orient('left');
@@ -46,16 +56,26 @@
             .attr('class', 'yAxis')
             .attr('transform', 'translate(' + PADDING + ',0)')
             .call(yAxis);
-        
-                
+       
         svg.selectAll('circle')
            .data(dataset)
            .enter()
            .append('circle')
-           .attr('class', function(d) { return 'measurement_class_' + d.measurement_type; })
+           .attr('class', function(d) { return 'measurement_' + d.measurement_type; })
            .attr('cx', function(d) { return xScale(timeFormat.parse(d.measurement_time)); })
            .attr('cy', function(d) { return yScale(d.value); })
            .attr('r', 4);
-    };
 
+        // Draw connecting lines between measurements of each type
+        var lineFunction = d3.svg.line()
+            .x(function(d) { return xScale(timeFormat.parse(d.measurement_time)); })
+            .y(function(d) { return yScale(d.value); })
+            .interpolate('linear');
+            
+        for (var i = 0; i < measurementTypes.length; i++) {
+            svg.append('path')
+                .attr('d', lineFunction(dataSplits[measurementTypes[i]]))
+                .attr('class', 'measurement_' + measurementTypes[i] + ' line');
+        }
+    };
 })();
