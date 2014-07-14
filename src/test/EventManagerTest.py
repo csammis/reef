@@ -46,6 +46,24 @@ class TestEventManager(object):
         assert len(l) == 3
         assert l[0].measurement_time < l[1].measurement_time and l[1].measurement_time < l[2].measurement_time
 
+    def test_get_measurement(self):
+        TestEventManager.insert_measurements()
+
+        l = TestEventManager._em.get_measurements()
+        measurement_id = l[0].id
+
+        m = TestEventManager._em.get_measurement(measurement_id)
+        assert m is not None
+        assert m.measurement_time == l[0].measurement_time
+        assert m.measurement_type == l[0].measurement_type
+        assert m.value == l[0].value
+
+    def test_get_measurement_not_found(self):
+        TestEventManager.insert_measurements()
+
+        m = TestEventManager._em.get_measurement(-1)
+        assert m is None
+
     def test_get_measurements_with_parameters(self):
         TestEventManager.insert_measurements()
 

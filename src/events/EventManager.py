@@ -12,6 +12,12 @@ class EventManager(object):
         DBSession.add(obj)
         DBSession.commit()
 
+    def get_measurement(self, measurement_id):
+        query = DBSession.query(Measurement).filter(Measurement.id == measurement_id)
+        if query.count() == 0:
+            return None
+        return query.first()
+
     def get_measurements(self, parameters = None, timerange = {}):
         query = DBSession.query(Measurement)
         if parameters is not None:

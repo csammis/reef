@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import jsonify
 from flask import request
-from flask import abort
+from flask.ext.restful import abort
 from flask.ext import restful
 from datetime import datetime
 import events
@@ -42,7 +42,7 @@ def parameters_from_request():
         parameters = request.args['parameters'].split(',')
     return parameters
 
-# Define a resource endpoint for measurements
+# Define a resource for lists of measurements
 class Measurements(restful.Resource):
     def get(self):
         trange = timerange_from_request()
@@ -50,6 +50,16 @@ class Measurements(restful.Resource):
         return jsonify(events = event_manager.get_measurements(parameters = parameters, timerange = trange))
 
 api.add_resource(Measurements, '/measurements/')
+
+# Define a resource for dealing with a single measurement
+class Measurement(restful.Resource):
+    def get(self, measurement_id):
+        event = event_manager.get_measurement(measurement_id)
+        if event is None:
+            abort(404, message='Measurement with ID {} not found'.format(measurement_id))
+        return jsonify(event = event)
+
+api.add_resource(Measurement, '/measurements/<int:measurement_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
