@@ -1,17 +1,16 @@
-from sqlalchemy import Column, Integer, Float, DateTime
+from sqlalchemy import Column, Integer, Float, DateTime, Enum
 from sqlalchemy import func
 from events import Base
+from events import MeasurementType
+from events import MeasurementTypeDecorator
 
 class Measurement(Base) :
 
     __tablename__ = 'Measurements'
     id = Column(Integer, primary_key = True)
-    measurement_time = Column(DateTime, index=True, default=func.now())
-    measurement_type = Column(Integer)
+    measurement_time = Column(DateTime, index = True, default=func.now(), nullable = False)
+    measurement_type = Column(MeasurementTypeDecorator.Enum3(MeasurementType.MeasurementType), nullable = False)
     value = Column(Float, nullable = True)
-
-    ' Measurement types '
-    PHOSPHATE, MAGNESIUM, CALCIUM, KH, PH, SPECIFICGRAVITY, TEMPERATURE, NITRATE = range(0, 8)
 
     def __init__(self, measurement_type, measurement_time = None, value = None) :
         self.measurement_type = measurement_type

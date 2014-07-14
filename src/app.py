@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import jsonify
 from flask import request
-from flask.ext.restful import abort
+from flask.ext.restful import abort, reqparse
 from flask.ext import restful
 from datetime import datetime
 from json import JSONEncoder
@@ -24,8 +24,10 @@ class EventsEncoder(JSONEncoder):
         if isinstance(o, events.Measurement):
             return {'id': o.id,\
                     'measurement_time': o.measurement_time,\
-                    'measurement_type': o.measurement_type,\
+                    'measurement_type': o.measurement_type.name,\
                     'value': o.value}
+        elif isinstance(o, datetime):
+            return o.isoformat()
         else:
             return JSONEncoder.default(self, o)
 
@@ -55,12 +57,24 @@ def parameters_from_request():
         parameters = request.args['parameters'].split(',')
     return parameters
 
+measure_parser = reqparse.RequestParser()
+measure_parser.add_argument('type', type=str)
+measure_parser.add_argument('value', type=float)
+
 # Define a resource for lists of measurements
 class Measurements(restful.Resource):
     def get(self):
         trange = timerange_from_request()
         parameters = parameters_from_request()
         return jsonify(events = event_manager.get_measurements(parameters = parameters, timerange = trange))
+
+    def post(self):
+        args = measure_parser.parse_args()
+        try:
+            measurement_type = events.MeasurementType[args['type']]
+        except KeyError:
+            abort(400, message="Measurement type '{}' is not valid".format(args['type']))
+        event_manager.add(events.Measurement(measurement_type = measurement_type, value = args['value']))
 
 api.add_resource(Measurements, '/measurements/')
 
