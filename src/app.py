@@ -4,6 +4,7 @@ from flask import request
 from flask.ext.restful import abort
 from flask.ext import restful
 from datetime import datetime
+from json import JSONEncoder
 import events
 
 app = Flask(__name__)
@@ -17,6 +18,18 @@ def index():
 @app.route('/parameters/')
 def parameters():
     return 'this is where all the pretty graphs might go'
+
+class EventsEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, events.Measurement):
+            return {'id': o.id,\
+                    'measurement_time': o.measurement_time,\
+                    'measurement_type': o.measurement_type,\
+                    'value': o.value}
+        else:
+            return JSONEncoder.default(self, o)
+
+app.json_encoder = EventsEncoder 
 
 def timerange_from_request():
     trange = { }
