@@ -18,3 +18,23 @@ svg {
     stroke:black;
     shape-rendering:crispEdges;
 }
+
+.measurement_class_KH {
+    fill:yellow;
+    stroke:orange;
+}
+
+.measurement_class_Phosphate {
+    fill:green;
+    stroke:darkgreen;
+}
+
+.measurement_class_PH {
+    fill:red;
+    stroke:darkred;
+}
+
+.measurement_class_Calcium {
+    fill:blue;
+    stroke:darkblue;
+}

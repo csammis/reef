@@ -52,6 +52,7 @@
            .data(dataset)
            .enter()
            .append('circle')
+           .attr('class', function(d) { return 'measurement_class_' + d.measurement_type; })
            .attr('cx', function(d) { return xScale(timeFormat.parse(d.measurement_time)); })
            .attr('cy', function(d) { return yScale(d.value); })
            .attr('r', 4);
