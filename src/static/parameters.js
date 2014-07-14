@@ -11,18 +11,18 @@
 
     var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
 
-    // Doing this quick + dirty because I don't want to drag in jquery right this second
-    var req = new XMLHttpRequest;
-    req.overrideMimeType('application/json');
-    req.open('GET', '/measurements/');
-    req.onload = function() {
-        if (req.status == 200) {
-            renderJson(JSON.parse(req.responseText));
-        }
+    function sendRequest() {
+        $.ajax({
+            url: '/measurements/',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                renderJson(json);
+            }
+        });
     };
-    req.send(null);
-
-    var renderJson = function(json) {
+    
+    function renderJson(json) {
 
         // Slice up the event data into measurement types
         var dataset = json.events;
@@ -78,4 +78,10 @@
                 .attr('class', 'measurement_' + measurementTypes[i] + ' line');
         }
     };
+
+    $(function() {
+        // Bind up html controls
+    });
+
+    window.onload = sendRequest();
 })();
