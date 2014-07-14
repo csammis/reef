@@ -1,6 +1,4 @@
-from flask import Flask
-from flask import jsonify
-from flask import request
+from flask import Flask, jsonify, request, url_for, render_template
 from flask.ext.restful import abort, reqparse
 from flask.ext import restful
 from datetime import datetime
@@ -13,11 +11,11 @@ event_manager = events.EventManager('events/events.db')
 
 @app.route('/')
 def index():
-    return 'an index page here'
+    return render_template('index.html')
 
 @app.route('/parameters/')
 def parameters():
-    return 'this is where all the pretty graphs might go'
+    return render_template('parameters.html')
 
 class EventsEncoder(JSONEncoder):
     def default(self, o):
@@ -87,6 +85,7 @@ class Measurement(restful.Resource):
         return jsonify(event = event)
 
 api.add_resource(Measurement, '/measurements/<int:measurement_id>')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
