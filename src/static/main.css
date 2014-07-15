@@ -19,14 +19,24 @@ svg {
     shape-rendering:crispEdges;
 }
 
-.measurement_KH {
-    fill:yellow;
-    stroke:orange;
-}
-
 .measurement_Phosphate {
     fill:green;
     stroke:darkgreen;
+}
+
+.measurement_Magnesium {
+    fill:cyan;
+    stroke:darkcyan;
+}
+
+.measurement_Calcium {
+    fill:blue;
+    stroke:darkblue;
+}
+
+.measurement_KH {
+    fill:yellow;
+    stroke:orange;
 }
 
 .measurement_PH {
@@ -34,10 +44,31 @@ svg {
     stroke:darkred;
 }
 
-.measurement_Calcium {
-    fill:blue;
-    stroke:darkblue;
+.measurement_SpecificGravity {
+    fill:slateblue;
+    stroke:darkslateblue;
 }
+
+.measurement_Temperature {
+    fill:violet;
+    stroke:darkviolet;
+}
+
+.measurement_Nitrate {
+    fill:salmon;
+    stroke:darksalmon;
+}
+
+.measurement_Nitrite {
+    fill:pink;
+    stroke:deeppink;
+}
+
+.measurement_Ammonia {
+    fill:slategray;
+    stroke:darkslategray;
+}
+
 
 .line {
     fill:none;

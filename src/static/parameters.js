@@ -1,7 +1,8 @@
 (function() {
     var WIDTH = 1000;
     var HEIGHT = 400;
-    var PADDING = 25;
+    var HORIZONTAL_PADDING = 35;
+    var VERTICAL_PADDING = 20;
 
     var svg = d3.select('#graph')
                 .append('svg:svg')
@@ -38,10 +39,10 @@
         }
 
         var xScale = d3.time.scale()
-            .range([PADDING, WIDTH - PADDING])
+            .range([HORIZONTAL_PADDING, WIDTH - HORIZONTAL_PADDING])
             .domain(d3.extent(dataset, function(d) { return timeFormat.parse(d.measurement_time); }));
         var yScale = d3.scale.linear()
-            .range([HEIGHT - PADDING, PADDING])
+            .range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING])
             .domain(d3.extent(dataset, function(d) { return d.value; }));
 
         var xAxis = d3.svg.axis().scale(xScale).orient('bottom');
@@ -49,12 +50,12 @@
 
         svg.append('g')
             .attr('class', 'xAxis')
-            .attr('transform', 'translate(0,' + (HEIGHT - PADDING) + ')')
+            .attr('transform', 'translate(0,' + (HEIGHT - VERTICAL_PADDING) + ')')
             .call(xAxis);
 
         svg.append('g')
             .attr('class', 'yAxis')
-            .attr('transform', 'translate(' + PADDING + ',0)')
+            .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)')
             .call(yAxis);
        
         svg.selectAll('circle')
