@@ -43,7 +43,7 @@
     function getSvgForParameter(parameter) {
         if (!svgs.hasOwnProperty(parameter)) {
             var label = parameter;
-            if (configs.hasOwnProperty(parameter)) {
+            if (configs.hasOwnProperty(parameter) && configs[parameter].measurement_label) {
                 label = configs[parameter].measurement_label;
             }
 
@@ -112,25 +112,29 @@
 
             // Draw any customizations that are configured for this measurement
             if (configs.hasOwnProperty(mt)) {
-                var v0 = Math.min(configs[mt].range[0], configs[mt].range[1]);
-                var v1 = Math.max(configs[mt].range[0], configs[mt].range[1]);
+                if (configs[mt].range) {
+                    var v0 = Math.min(configs[mt].range[0], configs[mt].range[1]);
+                    var v1 = Math.max(configs[mt].range[0], configs[mt].range[1]);
 
-                s.append('rect')
-                    .attr('x', HORIZONTAL_PADDING)
-                    .attr('y', yScale(v1))
-                    .attr('width', WIDTH - (HORIZONTAL_PADDING * 2))
-                    .attr('height', yScale(v0) - yScale(v1))
-                    .attr('fill', 'lightgreen')
-                    .attr('stroke', 'darkgreen');
+                    s.append('rect')
+                        .attr('x', HORIZONTAL_PADDING)
+                        .attr('y', yScale(v1))
+                        .attr('width', WIDTH - (HORIZONTAL_PADDING * 2))
+                        .attr('height', yScale(v0) - yScale(v1))
+                        .attr('fill', 'lightgreen')
+                        .attr('stroke', 'darkgreen');
+                }
 
-                s.append('text')
-                    .attr('transform', 'rotate(-90)')
-                    .attr('y', 0 - MARGIN.LEFT)
-                    .attr('x', 0 - (HEIGHT / 2))
-                    .attr('dy', '1em')
-                    .style('text-anchor', 'middle')
-                    .style('font-family', 'sans-serif')
-                    .text(configs[mt].value_label);
+                if (configs[mt].value_label) {
+                    s.append('text')
+                        .attr('transform', 'rotate(-90)')
+                        .attr('y', 0 - MARGIN.LEFT)
+                        .attr('x', 0 - (HEIGHT / 2))
+                        .attr('dy', '1em')
+                        .style('text-anchor', 'middle')
+                        .style('font-family', 'sans-serif')
+                        .text(configs[mt].value_label);
+                }
             }
 
             // Draw connecting lines between measurements of each type
