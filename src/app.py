@@ -87,6 +87,7 @@ api.add_resource(Measurements, '/measurements/')
 # Define a resource for dealing with a single measurement
 #
 class Measurement(restful.Resource):
+
     def get(self, measurement_id):
         event = event_manager.get_measurement(measurement_id)
         if event is None:
@@ -95,6 +96,23 @@ class Measurement(restful.Resource):
 
 api.add_resource(Measurement, '/measurements/<int:measurement_id>')
 
+
+#
+# Config testing pieces
+#
+
+class Config(restful.Resource):
+
+    def get(self, config_type):
+        if config_type == 'measurements':
+            configs = [];
+            configs.append(events.MeasurementConfig(events.MeasurementType.Temperature, 'Temp', [78, 82], 'Degrees F'))
+
+            configDict = {c.measurement_type.name: {'range': c.value_range, 'measurement_label': c.measurement_label, 'value_label': c.value_label } \
+                    for c in configs}
+            return jsonify(configs = configDict)
+
+api.add_resource(Config, '/configs/<string:config_type>')
 
 if __name__ == '__main__':
     app.run(debug=True)
