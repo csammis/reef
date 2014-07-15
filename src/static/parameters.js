@@ -57,15 +57,6 @@
             .attr('class', 'yAxis')
             .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)')
             .call(yAxis);
-       
-        svg.selectAll('circle')
-           .data(dataset)
-           .enter()
-           .append('circle')
-           .attr('class', function(d) { return 'measurement_' + d.measurement_type; })
-           .attr('cx', function(d) { return xScale(timeFormat.parse(d.measurement_time)); })
-           .attr('cy', function(d) { return yScale(d.value); })
-           .attr('r', 4);
 
         // Draw connecting lines between measurements of each type
         var lineFunction = d3.svg.line()
@@ -78,6 +69,15 @@
                 .attr('d', lineFunction(dataSplits[measurementTypes[i]]))
                 .attr('class', 'measurement_' + measurementTypes[i] + ' line');
         }
+
+        svg.selectAll('circle')
+           .data(dataset)
+           .enter()
+           .append('circle')
+           .attr('class', function(d) { return 'measurement_' + d.measurement_type; })
+           .attr('cx', function(d) { return xScale(timeFormat.parse(d.measurement_time)); })
+           .attr('cy', function(d) { return yScale(d.value); })
+           .attr('r', 4);
     };
 
     $(function() {
