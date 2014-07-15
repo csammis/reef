@@ -11,6 +11,7 @@ class EventManager(object):
     def add(self, obj):
         DBSession.add(obj)
         DBSession.commit()
+        return obj.id;
 
     def get_measurement(self, measurement_id):
         query = DBSession.query(Measurement).filter(Measurement.id == measurement_id)

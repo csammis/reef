@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, url_for, render_template
 from flask.ext.restful import abort, reqparse
 from flask.ext import restful
 from datetime import datetime
+import dateutil.parser
 from json import JSONEncoder
 import events
 
@@ -58,6 +59,7 @@ def parameters_from_request():
 measure_parser = reqparse.RequestParser()
 measure_parser.add_argument('type', type=str)
 measure_parser.add_argument('value', type=float)
+measure_parser.add_argument('time', type=str)
 
 # Define a resource for lists of measurements
 class Measurements(restful.Resource):
@@ -72,7 +74,16 @@ class Measurements(restful.Resource):
             measurement_type = events.MeasurementType[args['type']]
         except KeyError:
             abort(400, message="Measurement type '{}' is not valid".format(args['type']))
-        event_manager.add(events.Measurement(measurement_type = measurement_type, value = args['value']))
+
+        measurement_time = None
+        if 'time' in args.keys() and args['time'] is not None:
+            try:
+                measurement_time = dateutil.parser.parse(args['time'])
+            except:
+                abort(400, message="Unable to parse time parameter '{}' into datetime".format(args['time']))
+
+        event = events.Measurement(measurement_type = measurement_type, measurement_time = measurement_time, value = args['value'])
+        return jsonify(measurement_id = event_manager.add(event))
 
 api.add_resource(Measurements, '/measurements/')
 
