@@ -32,62 +32,60 @@ class EventsEncoder(JSONEncoder):
 
 app.json_encoder = EventsEncoder 
 
-def timerange_from_request():
-    trange = { }
+#
+# Parameter parsing
+#
+post_measurement_args = reqparse.RequestParser()
+post_measurement_args.add_argument('type', type=str, required=True, help="'type' must be supplied")
+post_measurement_args.add_argument('value', type=float, required=True, help="'value' must be supplied")
+post_measurement_args.add_argument('time', type=str)
+
+get_measurement_args = reqparse.RequestParser()
+get_measurement_args.add_argument('parameter', type=str, action='append')
+get_measurement_args.add_argument('start', type=str)
+get_measurement_args.add_argument('end', type=str)
+
+def try_get_time(args, key):
     try:
-        if 'start' in request.args.keys():
-            start = int(request.args['start'])
-            trange['start'] = datetime.fromtimestamp(start)
-    except ValueError:
-        abort(400)
+        return dateutil.parser.parse(args[key])
+    except:
+        abort(400, message="Unable to parse '{}' parameter '{}' into datetime".format(key, args[key]))
 
-    try:
-        if 'end' in request.args.keys():
-            end = int(request.args['end'])
-            trange['end'] = datetime.fromtimestamp(end)
-    except ValueError:
-        abort(400)
-
-    return trange
-
-def parameters_from_request():
-    parameters = None
-    if 'parameters' in request.args.keys():
-        parameters = request.args['parameters'].split(',')
-    return parameters
-
-measure_parser = reqparse.RequestParser()
-measure_parser.add_argument('type', type=str)
-measure_parser.add_argument('value', type=float)
-measure_parser.add_argument('time', type=str)
-
+#
 # Define a resource for lists of measurements
+#
 class Measurements(restful.Resource):
+
     def get(self):
-        trange = timerange_from_request()
-        parameters = parameters_from_request()
+        args = get_measurement_args.parse_args()
+        parameters = args['parameter']
+        trange = {}
+        if args['start'] is not None:
+            trange['start'] = try_get_time(args, 'start')
+        if args['end'] is not None:
+            trange['end'] = try_get_time(args, 'end')
+
         return jsonify(events = event_manager.get_measurements(parameters = parameters, timerange = trange))
 
     def post(self):
-        args = measure_parser.parse_args()
+        args = post_measurement_args.parse_args()
         try:
             measurement_type = events.MeasurementType[args['type']]
         except KeyError:
             abort(400, message="Measurement type '{}' is not valid".format(args['type']))
 
         measurement_time = None
-        if 'time' in args.keys() and args['time'] is not None:
-            try:
-                measurement_time = dateutil.parser.parse(args['time'])
-            except:
-                abort(400, message="Unable to parse time parameter '{}' into datetime".format(args['time']))
+        if args['time'] is not None:
+            measurement_time = try_get_time(args, 'time')
 
         event = events.Measurement(measurement_type = measurement_type, measurement_time = measurement_time, value = args['value'])
         return jsonify(measurement_id = event_manager.add(event))
 
 api.add_resource(Measurements, '/measurements/')
 
+#
 # Define a resource for dealing with a single measurement
+#
 class Measurement(restful.Resource):
     def get(self, measurement_id):
         event = event_manager.get_measurement(measurement_id)
