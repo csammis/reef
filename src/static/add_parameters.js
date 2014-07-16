@@ -30,10 +30,10 @@
         var type = $('#measurement_type').val();
         var time = $('#measurement_time').val();
 
-        if ($('#measurement_value').val() == '') {
+        if (value == '') {
             alert('fill in a value');
         }
-        else if ($('#measurement_type').val() == '') {
+        else if (type == '') {
             alert('select a type');
         }
         else {

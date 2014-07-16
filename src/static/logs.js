@@ -2,7 +2,7 @@
 
     function sendDataRequest() {
         $.ajax({
-            url: '/logentries',
+            url: '/logentries/',
             type: 'GET',
             dataType: 'json'})
         .done(function(json) { renderLogEntries(json); });
