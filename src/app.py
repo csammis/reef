@@ -22,6 +22,14 @@ def parameters():
 def add_parameters():
     return render_template('add_parameters.html')
 
+@app.route('/logs/')
+def logs():
+    return render_template('logs.html')
+
+@app.route('/logs/add/')
+def add_logs():
+    return render_template('add_logs.html')
+
 class EventsEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, events.Measurement):
@@ -29,6 +37,10 @@ class EventsEncoder(JSONEncoder):
                     'measurement_time': o.measurement_time,\
                     'measurement_type': o.measurement_type.name,\
                     'value': o.value}
+        elif isinstance(o, events.LogEntry):
+            return {'id': o.id,\
+                    'entry_time': o.entry_time,\
+                    'entry': o.entry}
         elif isinstance(o, datetime):
             return o.isoformat()
         else:
@@ -48,6 +60,14 @@ get_measurement_args = reqparse.RequestParser()
 get_measurement_args.add_argument('parameter', type=str, action='append')
 get_measurement_args.add_argument('start', type=str)
 get_measurement_args.add_argument('end', type=str)
+
+get_logentry_args = reqparse.RequestParser()
+get_logentry_args.add_argument('start', type=str)
+get_logentry_args.add_argument('end', type=str)
+
+post_logentry_args = reqparse.RequestParser()
+post_logentry_args.add_argument('entry', type=str, required=True, help="'entry' must be supplied")
+post_logentry_args.add_argument('time', type=str)
 
 def try_get_time(args, key):
     try:
@@ -100,7 +120,31 @@ class Measurement(restful.Resource):
 
 api.add_resource(Measurement, '/measurements/<int:measurement_id>')
 
+#
+# Define a resource for lists of log entries
+#
+class LogEntries(restful.Resource):
 
+    def get(self):
+        args = get_logentry_args.parse_args()
+        trange = {}
+        if args['start'] is not None:
+            trange['start'] = try_get_time(args, 'start')
+        if args['end'] is not None:
+            trange['end'] = try_get_time(args, 'end')
+
+        return jsonify(logentries = event_manager.get_log_entries(timerange = trange))
+
+    def post(self):
+        args = post_logentry_args.parse_args()
+        entry_time = None
+        if args['time'] is not None:
+            entry_time = try_get_time(args, 'time')
+
+        event = events.LogEntry(entry_time = entry_time, entry = args['entry'])
+        return jsonify(log_id = event_manager.add(event))
+
+api.add_resource(LogEntries, '/logentries/')
 #
 # Config testing pieces
 #
