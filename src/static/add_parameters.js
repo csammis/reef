@@ -8,25 +8,6 @@
         .done(function(json) { loadMeasurementSelect(json); });
     };
 
-    function sendAddMeasurement(type, time, value) {
-        $.ajax({
-            url: '/measurements/',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'type': type,
-                'value': value,
-                'time': time
-                }
-            })
-        .done(function(json) {loadAddMeasurementSuccess(json); });
-    };
-
-    function loadAddMeasurementSuccess(json) {
-        alert('yay');
-        onActionComplete();
-    }
-
     function loadMeasurementSelect(json) {
         var $select = $('#measurement_type');
         $select.empty()
@@ -42,16 +23,6 @@
         }
 
         onActionComplete();
-    };
-
-    function onActionComplete() {
-        $('#busyindicator').hide();
-        $('#submitButton').removeAttr('disabled');
-    };
-
-    function onActionStart() {
-        $('#busyindicator').show();
-        $('#submitButton').attr('disabled', 'disabled');
     };
 
     function doAddMeasurement() {
@@ -72,11 +43,40 @@
         return false;
     };
 
+    function sendAddMeasurement(type, time, value) {
+        $.ajax({
+            url: '/measurements/',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'type': type,
+                'value': value,
+                'time': time
+                }
+            })
+        .done(function(json) {loadAddMeasurementSuccess(json); });
+    };
+
+    function loadAddMeasurementSuccess(json) {
+        alert('yay');
+        onActionComplete();
+    }
+
     window.onload = function() {
         $('#measurement_time').datepicker({showOtherMonths: true});
         $('#add_parameter').submit(doAddMeasurement);
 
         sendConfigRequest();
+    };
+
+    function onActionComplete() {
+        $('#busyindicator').hide();
+        $('#submitButton').removeAttr('disabled');
+    };
+
+    function onActionStart() {
+        $('#busyindicator').show();
+        $('#submitButton').attr('disabled', 'disabled');
     };
 
 })();
