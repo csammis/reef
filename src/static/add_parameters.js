@@ -78,6 +78,7 @@
     };
 
     window.onload = function() {
+        $('#measurement_time').datepicker({showOtherMonths: true});
         $('#add_parameter').submit(doAddMeasurement);
 
         sendConfigRequest();
