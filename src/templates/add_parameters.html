@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>Add Parameter</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<form id="add_parameter" action="#">
+    <label>Measurement type: <select id="measurement_type"></select></label><br />
+    <label>Value: <input type="number" id="measurement_value" /></label><br />
+    <label>Measurement time: <input type="datetime-local" id="measurement_time" /></label> <em>(optional)</em><br />
+    <input type="submit" id="submitButton" value="Record measurement" disabled="disabled" />&nbsp;
+    <span id="busyindicator"><img src="/static/submitting.gif" alt="Adding..." /></span>
+</form>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="/static/add_parameters.js"></script>
+</body>
+</html>

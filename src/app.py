@@ -18,6 +18,10 @@ def index():
 def parameters():
     return render_template('parameters.html')
 
+@app.route('/parameters/add/')
+def add_parameters():
+    return render_template('add_parameters.html')
+
 class EventsEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, events.Measurement):
