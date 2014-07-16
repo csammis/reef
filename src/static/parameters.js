@@ -17,11 +17,8 @@
         $.ajax({
             url: '/configs/measurements',
             type: 'GET',
-            dataType: 'json',
-            success: function(json) {
-                stashConfigs(json);
-            }
-        });
+            dataType: 'json'})
+        .done(function(json) { stashConfigs(json); });
     };
 
     function stashConfigs(json) {
@@ -33,11 +30,8 @@
         $.ajax({
             url: '/measurements/',
             type: 'GET',
-            dataType: 'json',
-            success: function(json) {
-                renderJson(json);
-            }
-        });
+            dataType: 'json'})
+        .done(function(json) { renderJson(json); });
     };
 
     function getSvgForParameter(parameter) {

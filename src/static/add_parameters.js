@@ -4,11 +4,8 @@
         $.ajax({
             url: '/configs/measurements',
             type: 'GET',
-            dataType: 'json',
-            success: function(json) {
-                loadMeasurementSelect(json);
-            }
-        });
+            dataType: 'json'})
+        .done(function(json) { loadMeasurementSelect(json); });
     };
 
     function sendAddMeasurement(type, time, value) {
@@ -20,11 +17,9 @@
                 'type': type,
                 'value': value,
                 'time': time
-            },
-            success: function(json) {
-                loadAddMeasurementSuccess(json);
-            }
-        });
+                }
+            })
+        .done(function(json) {loadAddMeasurementSuccess(json); });
     };
 
     function loadAddMeasurementSuccess(json) {
