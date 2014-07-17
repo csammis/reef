@@ -98,6 +98,8 @@
         var last_time_display = $('#logentries').find('time:first').text();
         console.log(last_time_display);
 
+        $('div[class="logentry-empty"]').remove();
+
         createLogEntryElement(entry, entry_time, time_display, last_time_display)
             .hide()
             .prependTo('#logentries')
