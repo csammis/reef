@@ -19,6 +19,12 @@ class EventManager(object):
             return None
         return query.first()
 
+    def get_log_entry(self, logentry_id):
+        query = DBSession.query(LogEntry).filter(LogEntry.id == logentry_id)
+        if query.count() == 0:
+            return None
+        return query.first()
+
     def get_measurements(self, parameters = None, timerange = {}):
         query = DBSession.query(Measurement)
         if parameters is not None:

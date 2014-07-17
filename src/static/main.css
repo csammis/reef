@@ -69,7 +69,6 @@ svg {
     stroke:darkslategray;
 }
 
-
 .line {
     fill:none;
     stroke-width:1;
@@ -77,4 +76,27 @@ svg {
 
 #busyindicator {
     display:none;
+}
+
+#logentries {
+    float:left;
+    width:50%;
+    padding-right:1em;
+    border-right:solid 2px gray;
+}
+
+#control {
+    margin-left:52%;
+    padding-right:1em;
+}
+
+.logentry-date {
+    font-weight:bold;
+    text-align:right;
+    font-style:italic;
+    font-size:smaller;
+}
+
+.logentry-entry {
+    margin:0px;
 }

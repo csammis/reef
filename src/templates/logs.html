@@ -2,10 +2,22 @@
 <head>
 <title>Log Entries</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
 </head>
 <body>
-<div id="logentries"></div>
+<div id="main">
+    <div id="logentries"></div>
+    <div id="control">
+        <form id="add_log_entry" action="#">
+            <label>Entry: <input type="text" id="entry" /></label><br />
+            <label>Entry time: <input type="text" id="entry_time" /></label> <em>(optional, will default to today)</em><br />
+            <input type="submit" id="submitButton" value="Record log entry" /> &nbsp;
+            <span id="busyindicator"><img src="/static/submitting.gif" alt="Saving..." /></span>
+        </form>
+    </div>
+</div>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
 <script src="/static/logs.js"></script>
 </body>
 </html>

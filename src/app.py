@@ -26,10 +26,6 @@ def add_parameters():
 def logs():
     return render_template('logs.html')
 
-@app.route('/logs/add/')
-def add_logs():
-    return render_template('add_logs.html')
-
 class EventsEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, events.Measurement):
@@ -141,10 +137,25 @@ class LogEntries(restful.Resource):
         if args['time'] is not None:
             entry_time = try_get_time(args, 'time')
 
+        entry = args['entry'];
+        if len(entry) == 0:
+            abort(400, message="'entry' must be supplied")
+
         event = events.LogEntry(entry_time = entry_time, entry = args['entry'])
         return jsonify(log_id = event_manager.add(event))
 
 api.add_resource(LogEntries, '/logentries/')
+
+class LogEntry(restful.Resource):
+
+    def get(self, logentry_id):
+        event = event_manager.get_log_entry(logentry_id)
+        if event is None:
+            abort(404, message='Log entry with ID {} not found'.format(logentry_id))
+        return jsonify(logentry = event)
+
+api.add_resource(LogEntry, '/logentries/<int:logentry_id>')
+
 #
 # Config testing pieces
 #
