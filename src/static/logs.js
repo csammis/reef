@@ -16,6 +16,14 @@
     function renderLogEntries(json) {
         $('#logentries').empty();
 
+        if (json.logentries.length == 0) {
+            $('<div>')
+                .addClass('logentry-empty')
+                .html('No log entries here!')
+                .appendTo('#logentries');
+            
+        }
+
         for (var i = json.logentries.length - 1; i >= 0; i--) {
             var logentry = json.logentries[i];
 

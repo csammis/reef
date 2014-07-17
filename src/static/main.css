@@ -83,6 +83,7 @@ svg {
     width:50%;
     padding-right:1em;
     border-right:solid 2px gray;
+    min-height:5em;
 }
 
 #control {
@@ -99,4 +100,10 @@ svg {
 
 .logentry-entry {
     margin:0px;
+}
+
+.logentry-empty {
+    font-style:italic;
+    text-align:center;
+    min-height:5em;
 }
