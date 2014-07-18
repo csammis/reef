@@ -55,8 +55,24 @@
         return $logentryElement;
     };
 
-    function doAddLogEntry() {
+    function showDateEntry() {
+        $('#datechanger').hide();
+        $('#submit-div').prepend(createDateEntrySpan())
+    };
 
+    function createDateEntrySpan() {
+        var $span = $('<span>').addClass('entry-date').text('Date: ');
+
+        $('<input type="text" id="entry_time">').appendTo($span).datepicker({
+            showOtherMonths: true,
+            showOn: 'both',
+            buttonImage: '/static/images/calendar.svg',
+            buttonImageOnly: true});
+
+        return $span;
+    };
+
+    function doAddLogEntry() {
         
         var entry = $('#entry').val();
         var entry_time = $('#entry_time').val();
@@ -108,8 +124,9 @@
     };
 
     window.onload = function() {
-        $('#entry_time').datepicker({showOtherMonths: true});
-        $('#add_log_entry').submit(doAddLogEntry);        
+        $('#add_log_entry').submit(doAddLogEntry);
+        $('#submit-link').click(doAddLogEntry);
+        $('#changedate').click(showDateEntry);
 
         sendDataRequest();
     };

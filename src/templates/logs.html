@@ -9,10 +9,15 @@
     <div id="logentries"></div>
     <div id="control">
         <form id="add_log_entry" action="#">
-            <label>Entry: <input type="text" id="entry" /></label><br />
-            <label>Entry time: <input type="text" id="entry_time" /></label> <em>(optional, will default to today)</em><br />
-            <input type="submit" id="submitButton" value="Record log entry" /> &nbsp;
-            <span id="busyindicator"><img src="/static/submitting.gif" alt="Saving..." /></span>
+            <h4>New log entry:</h4>
+            <div class="entry-div">
+                <input type="text" id="entry" /> &nbsp;
+                <a href="#" id="submit-link" title="Record entry"><img src="/static/images/add-entry.svg" class="icon" alt="Record entry" title="Record entry" /></a>
+            </div>
+            <div id="submit-div">
+                <span id="datechanger" class="optional-text">Log will be entered with today's date (<a href="#" id="changedate">change</a>)</span>&nbsp;
+                <span id="busyindicator"><img src="/static/submitting.gif" alt="Saving..." /></span>
+            </div>
         </form>
     </div>
 </div>

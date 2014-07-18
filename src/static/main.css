@@ -1,3 +1,7 @@
+body {
+    font-family:sans-serif;
+}
+
 svg {
   vertical-align:middle;
 }
@@ -91,6 +95,25 @@ svg {
     padding-right:1em;
 }
 
+#control img {
+    vertical-align:middle;
+    margin:0px;
+    padding-left:0.1em;
+}
+
+#control input {
+    margin-bottom:1em;
+}
+
+h4 {
+    margin:0px;
+}
+
+.optional-text {
+    font-style:italic;
+    font-size:smaller;
+}
+
 .logentry-date {
     font-weight:bold;
     text-align:right;
@@ -106,4 +129,14 @@ svg {
     font-style:italic;
     text-align:center;
     min-height:5em;
+}
+
+#entry {
+    width:95%;
+}
+
+/* Override jquery-ui stylesheet for SVG calendar picker */
+.icon, .ui-datepicker-trigger {
+    width:16px;
+    height:16px;
 }
