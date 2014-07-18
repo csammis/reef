@@ -77,6 +77,14 @@
         var entry = $('#entry').val();
         var entry_time = $('#entry_time').val();
 
+        if (entry_time != undefined) {
+            // Since there's no time part and the server's going to conver to UTC,
+            // convert to midnight UTC local equivalent so the tz conversion won't jack everything up
+            var d = new Date(entry_time);
+            d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+            entry_time = d.toString();
+        }
+
         onAddActionStart();
         $.ajax({
             url: '/logentries/',
