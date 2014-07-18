@@ -40,7 +40,11 @@
     };
 
     function createLogEntryElement(content, fulltime, time_display, last_time_display) {
-        var $logentryElement = $('<article>').addClass('logentry');
+        var classForDate = time_display.replace(/\//g, '-');
+        var $logentryElement = $('#logentries').find('.' + classForDate);
+        if (!$logentryElement.exists()) {
+            $logentryElement = $('<article>').addClass('logentry').addClass(classForDate);
+        }
 
         var $entryElement = $('<p>').addClass('logentry-entry').html(content);
         $logentryElement.append($entryElement);
@@ -65,6 +69,7 @@
 
         $('<input type="text" id="entry_time">').appendTo($span).datepicker({
             showOtherMonths: true,
+            selectOtherMonths: true,
             showOn: 'both',
             buttonImage: '/static/images/calendar.svg',
             buttonImageOnly: true});
@@ -108,9 +113,13 @@
                 dataType: 'json'})
             .done(function(json) { handleGetSingleEntryResponse(json); })
             .fail(function(resp) { showDataRequestFailure(); });
+
+            $('#entry').val('');
+            $('#entry').focus();
         } else {
             alert(json.responseJSON.message);
         }
+
         onAddActionComplete();
     };
 
@@ -132,6 +141,10 @@
     };
 
     window.onload = function() {
+        $.fn.exists = function() {
+            return this.length !== 0;
+        }
+
         $('#add_log_entry').submit(doAddLogEntry);
         $('#submit-link').click(doAddLogEntry);
         $('#changedate').click(showDateEntry);

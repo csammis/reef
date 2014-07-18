@@ -85,8 +85,9 @@ svg {
 #logentries {
     float:left;
     width:50%;
-    padding-right:1em;
-    border-right:solid 2px gray;
+    margin-right:1em;
+    border:solid 2px gray;
+    border-radius:0.4em;
     min-height:5em;
 }
 
@@ -139,4 +140,9 @@ h4 {
 .icon, .ui-datepicker-trigger {
     width:16px;
     height:16px;
+}
+
+article {
+    padding:0.5em;
+    border-bottom:dotted 1px gray;
 }
