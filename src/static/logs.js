@@ -84,7 +84,7 @@
             dataType: 'json',
             data: {
                 'entry': entry,
-                'entry_time': entry_time
+                'time': entry_time
             }})
         .done(function(json) { handlePostLogEntryResponse(json, true); })
         .fail(function(resp) { handlePostLogEntryResponse(resp, false); });
