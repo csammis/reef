@@ -35,24 +35,24 @@
             }
 
             $('#logentries').append(
-                    createLogEntryElement(logentry.entry, logentry.entry_time, time_display, next_time_display));
+                    createLogEntryElement(logentry, time_display, next_time_display));
         }
     };
 
-    function createLogEntryElement(content, fulltime, time_display, last_time_display) {
+    function createLogEntryElement(logentry, time_display, last_time_display) {
         var classForDate = time_display.replace(/\//g, '-');
         var $logentryElement = $('#logentries').find('.' + classForDate);
         if (!$logentryElement.exists()) {
             $logentryElement = $('<article>').addClass('logentry').addClass(classForDate);
         }
 
-        var $entryElement = $('<p>').addClass('logentry-entry').html(content);
+        var $entryElement = $('<p>').addClass('logentry-entry').addClass('id-' + logentry.id).html(logentry.entry);
         $logentryElement.append($entryElement);
 
         if (time_display != last_time_display) {
             var $date_div = $('<footer>')
                 .addClass('logentry-date')
-                .html('<time datetime="' + fulltime + '">' + time_display + '</time>');
+                .html('<time datetime="' + logentry.entry_time + '">' + time_display + '</time>');
             $logentryElement.append($date_div);
         }
 
@@ -133,7 +133,7 @@
 
         $('div[class="logentry-empty"]').remove();
 
-        createLogEntryElement(entry, entry_time, time_display, last_time_display)
+        createLogEntryElement(json.logentry, time_display, last_time_display)
             .hide()
             .prependTo('#logentries')
             .fadeIn();
