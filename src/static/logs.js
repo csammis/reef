@@ -46,7 +46,25 @@
             $logentryElement = $('<article>').addClass('logentry').addClass(classForDate);
         }
 
-        var $entryElement = $('<p>').addClass('logentry-entry').addClass('id-' + logentry.id).html(logentry.entry);
+        var $editEntryElement = $('<span>').addClass('logentry-control-' + logentry.id).addClass('align-right').hide();
+        $('<a>').attr('href', '#').html('<img src="/static/images/edit.svg" class="icon" alt="Edit" />').click(function() {
+            alert('Edit entry with ID ' + logentry.id);
+        }).appendTo($editEntryElement);
+        $('<a>').attr('href', '#').html('<img src="/static/images/delete.svg" class="icon" alt="Delete this entry" />').click(function() {
+            $.ajax({
+                url: '/logentries/' + logentry.id,
+                type: 'DELETE',
+                dataType: 'json'})
+            .done(function(json) { removeLogEntry(logentry.id); })
+            .fail(function(json) { alert("Couldn't delete entry"); });
+        }).appendTo($editEntryElement);
+
+        var $entryElement = $('<p>').addClass('logentry-entry').addClass('id-' + logentry.id).html(logentry.entry)
+            .hover(
+                    function() { $('.logentry-control-' + logentry.id).show(); },
+                    function() { $('.logentry-control-' + logentry.id).hide(); }
+                  );
+        $entryElement.append($editEntryElement);
         $logentryElement.append($entryElement);
 
         if (time_display != last_time_display) {
@@ -58,6 +76,20 @@
 
         return $logentryElement;
     };
+
+    function removeLogEntry(id) {
+        var $target = $('.id-' + id).first();
+        var $parent = $target.parent();
+        var $elementToRemove;
+        if ($parent.children('p').length == 1) {
+            $elementToRemove = $parent;
+        } else {
+            $elementToRemove = $target;
+        }
+        $elementToRemove.fadeOut({
+            complete: function() { $(this).remove(); }
+        });
+    }
 
     function showDateEntry() {
         $('#datechanger').hide();

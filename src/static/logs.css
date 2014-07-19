@@ -20,7 +20,7 @@ body {
     padding-right:1em;
 }
 
-#control img {
+#control img, #logentries img {
     vertical-align:middle;
     margin:0px;
     padding-left:0.1em;
@@ -70,4 +70,8 @@ h4 {
 article {
     padding:0.5em;
     border-bottom:dotted 1px gray;
+}
+
+.align-right {
+    text-align:right;
 }
