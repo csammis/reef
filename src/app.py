@@ -154,6 +154,13 @@ class LogEntry(restful.Resource):
             abort(404, message='Log entry with ID {} not found'.format(logentry_id))
         return jsonify(logentry = event)
 
+    def delete(self, logentry_id):
+        event = event_manager.get_log_entry(logentry_id)
+        if event is None:
+            abort(404, message='Log entry with ID {} not fount'.format(logentry_id))
+        event_manager.delete(event);
+        return '', 204
+
 api.add_resource(LogEntry, '/logentries/<int:logentry_id>')
 
 #

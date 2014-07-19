@@ -13,6 +13,10 @@ class EventManager(object):
         DBSession.commit()
         return obj.id;
 
+    def delete(self, obj):
+        DBSession.delete(obj);
+        DBSession.commit();
+
     def get_measurement(self, measurement_id):
         query = DBSession.query(Measurement).filter(Measurement.id == measurement_id)
         if query.count() == 0:

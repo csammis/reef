@@ -97,6 +97,14 @@ class TestEventManager(object):
         assert l[0].value == 7.33
         assert l[0].measurement_type == MeasurementType.KH
 
+    def test_delete_measurement(self):
+        TestEventManager.insert_measurements()
+
+        l = TestEventManager._em.get_measurements()
+        TestEventManager._em.delete(l[0])
+
+        assert len(TestEventManager._em.get_measurements()) == 2
+
     def test_add_logentry_implicit_time(self):
         le = events.LogEntry('Hi there')
         TestEventManager._em.add(le)
@@ -168,3 +176,11 @@ class TestEventManager(object):
         l = TestEventManager._em.get_log_entries(trange)
         assert len(l) == 1
         assert l[0].entry == 'ghi'
+
+    def test_delete_logentry(self):
+        TestEventManager.insert_log_entries()
+
+        l = TestEventManager._em.get_log_entries()
+        TestEventManager._em.delete(l[0])
+
+        assert len(TestEventManager._em.get_log_entries()) == 2
