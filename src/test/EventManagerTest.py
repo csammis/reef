@@ -128,6 +128,23 @@ class TestEventManager(object):
         assert len(l) == 3
         assert l[0].entry_time < l[1].entry_time and l[1].entry_time < l[2].entry_time
 
+    def test_get_logentry(self):
+        TestEventManager.insert_log_entries()
+
+        l = TestEventManager._em.get_log_entries()
+        assert len(l) == 3
+        e = TestEventManager._em.get_log_entry(l[0].id)
+        assert e is not None
+        assert e.id == l[0].id
+        assert e.entry_time == l[0].entry_time
+        assert e.entry == l[0].entry
+
+    def test_get_logentry_not_found(self):
+        TestEventManager.insert_log_entries()
+
+        e = TestEventManager._em.get_log_entry(-1)
+        assert e is None
+
     def test_get_logentry_greaterthan_time(self):
         TestEventManager.insert_log_entries()
 
