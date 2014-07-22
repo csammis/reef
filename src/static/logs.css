@@ -20,9 +20,13 @@ body {
     padding-right:1em;
 }
 
-#control img, #logentries img {
+#control img {
     vertical-align:middle;
-    margin:0px;
+    padding-left:0.1em;
+}
+
+#logentries img {
+    vertical-align:text-top;
     padding-left:0.1em;
 }
 
@@ -49,6 +53,7 @@ h4 {
 .logentry-entry {
     margin:0px;
     padding-bottom:0.2em;
+    vertical-align:middle;
 }
 
 .logentry-empty {
@@ -72,6 +77,6 @@ article {
     border-bottom:dotted 1px gray;
 }
 
-.align-right {
-    text-align:right;
+.logentry-control {
+    padding-left:0.5em;
 }

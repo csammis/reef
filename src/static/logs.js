@@ -46,7 +46,7 @@
             $logentryElement = $('<article>').addClass('logentry').addClass(classForDate);
         }
 
-        var $editEntryElement = $('<span>').addClass('logentry-control-' + logentry.id).addClass('align-right').hide();
+        var $editEntryElement = $('<span>').addClass('logentry-control-' + logentry.id).addClass('logentry-control').hide();
         $('<a>').attr('href', '#').html('<img src="/static/images/edit.svg" class="icon" alt="Edit" />').click(function() {
             alert('Edit entry with ID ' + logentry.id);
         }).appendTo($editEntryElement);
