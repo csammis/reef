@@ -10,7 +10,7 @@ class Enum3(TypeDecorator):
             value = value.name
         return value
 
-    def process_literal_value(self, value, dialect):
+    def process_literal_value(self, value, dialect): #pragma: no cover
         if type(value) is MeasurementType.MeasurementType:
             value = value.name
         return value
