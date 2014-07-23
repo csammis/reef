@@ -184,3 +184,14 @@ class TestEventManager(object):
         TestEventManager._em.delete(l[0])
 
         assert len(TestEventManager._em.get_log_entries()) == 2
+
+    def test_update_logentry(self):
+        TestEventManager.insert_log_entries()
+
+        l = TestEventManager._em.get_log_entries()
+        assert l[0].entry == 'ghi'
+        TestEventManager._em.update_log_entry(l[0].id, 'xyz', l[0].entry_time)
+
+        e = TestEventManager._em.get_log_entry(l[0].id)
+        assert e.entry == 'xyz'
+

@@ -47,3 +47,6 @@ class EventManager(object):
             query = query.filter(LogEntry.entry_time <= timerange['end'])
         return query.order_by(LogEntry.entry_time.asc()).all()
 
+    def update_log_entry(self, logentry_id, entry, entry_time):
+        DBSession.query(LogEntry).filter(LogEntry.id == logentry_id).update({LogEntry.entry: entry, LogEntry.entry_time: entry_time})
+        DBSession.commit()

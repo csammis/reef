@@ -65,6 +65,9 @@ post_logentry_args = reqparse.RequestParser()
 post_logentry_args.add_argument('entry', type=str, required=True, help="'entry' must be supplied")
 post_logentry_args.add_argument('time', type=str)
 
+put_logentry_args = reqparse.RequestParser()
+put_logentry_args.add_argument('entry', type=str, required=True, help="'entry' must be supplied")
+
 def try_get_time(args, key):
     try:
         return dateutil.parser.parse(args[key])
@@ -157,9 +160,18 @@ class LogEntry(restful.Resource):
     def delete(self, logentry_id):
         event = event_manager.get_log_entry(logentry_id)
         if event is None:
-            abort(404, message='Log entry with ID {} not fount'.format(logentry_id))
+            abort(404, message='Log entry with ID {} not found'.format(logentry_id))
         event_manager.delete(event);
         return '', 204
+
+    def put(self, logentry_id):
+        args = put_logentry_args.parse_args()
+        event = event_manager.get_log_entry(logentry_id)
+        if event is None:
+            abort(404, message='Log entry with ID {} not found'.format(logentry_id))
+        event_manager.update_log_entry(logentry_id, entry = args['entry'], entry_time = event.entry_time)
+        event.entry = args['entry']
+        return { 'entry' : {'id' : event.id, 'entry': event.entry, 'entry_time': event.entry_time.isoformat()} }, 201
 
 api.add_resource(LogEntry, '/logentries/<int:logentry_id>')
 
