@@ -20,6 +20,10 @@ body {
     padding-right:1em;
 }
 
+#clear {
+    clear:both;
+}
+
 #control img {
     vertical-align:middle;
     padding-left:0.1em;
