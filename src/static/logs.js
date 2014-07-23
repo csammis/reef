@@ -46,27 +46,72 @@
             $logentryElement = $('<article>').addClass('logentry').addClass(classForDate);
         }
 
-        var $editEntryElement = $('<span>').addClass('logentry-control-' + logentry.id).addClass('logentry-control').hide();
-        $('<a>').attr('href', '#').html('<img src="/static/images/edit.svg" class="icon" alt="Edit" />').click(function() {
-            alert('Edit entry with ID ' + logentry.id);
-        }).appendTo($editEntryElement);
+        var id = logentry.id;
+
+        // Create a container for the entry and associated controls
+        var $entryElement = $('<p>').addClass('logentry-entry').addClass('id-' + id)
+            .hover(
+                    function() { $('.logentry-control-' + id).show(); },
+                    function() { $('.logentry-control-' + id).hide(); }
+                  );
+        
+        var $entrySpan = $('<span>').addClass('entry-group').appendTo($entryElement);
+
+        // Add the entry with associated handlers for edit control
+        $('<span>').html(logentry.entry)
+            .click(function() {
+                var $originalElement = $(this);
+                var $stash = $(this).closest('.entry-group');
+                var $container = $stash.parent();
+
+                $stash.detach();
+
+                function finished() { $container.empty(); $stash.appendTo($container); }
+                
+                $('.id-' + id)
+                    .append('<input type="text" value="' + $originalElement.html() + '" class="logentry-inline-edit" id="inline-edit-' + id + '" />&nbsp;')
+                    .append('<a href="#" id="save-edit-' + id + '">Save</a> <a href="#" id="cancel-edit-' + id + '">Cancel</a>');
+                $('#cancel-edit-' + id).click(function() {
+                    finished();
+                    return false;
+                });
+                $('#save-edit-' + id).click(function() {
+                    var newEntry = $('#inline-edit-' + id).val();
+                    $.ajax({
+                        url: '/logentries/' + id,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            entry: newEntry
+                        }})
+                    .done(function(json) { $originalElement.html(newEntry); finished(); })
+                    .fail(function(json) { alert("Couldn't edit entry"); });
+                    return false;
+                });
+            })
+            .hover(
+                    function() { $(this).addClass('entry-hover'); },
+                    function() { $(this).removeClass('entry-hover'); }
+                  )
+            .appendTo($entrySpan);
+
+        // Set up the control for deleting an entry
+        var $editEntryElement = $('<span>').addClass('logentry-control-' + id).addClass('logentry-control').hide();
         $('<a>').attr('href', '#').html('<img src="/static/images/delete.svg" class="icon" alt="Delete this entry" />').click(function() {
             $.ajax({
-                url: '/logentries/' + logentry.id,
+                url: '/logentries/' + id,
                 type: 'DELETE',
                 dataType: 'json'})
-            .done(function(json) { removeLogEntry(logentry.id); })
+            .done(function(json) { removeLogEntry(id); })
             .fail(function(json) { alert("Couldn't delete entry"); });
         }).appendTo($editEntryElement);
 
-        var $entryElement = $('<p>').addClass('logentry-entry').addClass('id-' + logentry.id).html(logentry.entry)
-            .hover(
-                    function() { $('.logentry-control-' + logentry.id).show(); },
-                    function() { $('.logentry-control-' + logentry.id).hide(); }
-                  );
-        $entryElement.append($editEntryElement);
+        $entrySpan.append($editEntryElement);
+
+        // Append into the article container for the current date
         $logentryElement.append($entryElement);
 
+        // Create a footer
         if (time_display != last_time_display) {
             var $date_div = $('<footer>')
                 .addClass('logentry-date')
