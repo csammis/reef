@@ -1,4 +1,5 @@
 *.db
+*.db-journal
 *.swp
 __pycache__/
 *.py[cod]
