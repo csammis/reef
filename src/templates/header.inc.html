@@ -1,0 +1,12 @@
+<html>
+<head>
+<title>{{ title }}</title>
+<link rel="stylesheet" type="text/css" href="/static/common.css" />
+{% if libraries and 'jquery-ui' in libraries %}
+<link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+{% endif %}
+{% if stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ stylesheet }}" />
+{% endif %}
+</head>
+<body>

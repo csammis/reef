@@ -7,16 +7,22 @@ from json import JSONEncoder
 import events
 
 app = Flask(__name__)
+app.jinja_env.trim_blocks = True
+app.jinja_env.lstrip_blocks = True
 api = restful.Api(app)
 event_manager = events.EventManager('events/events.db')
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', title='Reef')
 
 @app.route('/parameters/')
 def parameters():
-    return render_template('parameters.html')
+    return render_template('parameters.html', \
+            title='Parameters', \
+            libraries=['jquery','d3'], \
+            stylesheet=url_for('static', filename='main.css'), \
+            script=url_for('static', filename='parameters.js'))
 
 @app.route('/parameters/add/')
 def add_parameters():
@@ -24,7 +30,11 @@ def add_parameters():
 
 @app.route('/logs/')
 def logs():
-    return render_template('logs.html')
+    return render_template('logs.html', \
+            title='Logs', \
+            libraries=['jquery','jquery-ui'], \
+            stylesheet=url_for('static', filename='logs.css'),
+            script=url_for('static', filename='logs.js'))
 
 class EventsEncoder(JSONEncoder):
     def default(self, o):

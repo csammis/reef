@@ -1,7 +1,3 @@
-body {
-    font-family:sans-serif;
-}
-
 #busyindicator {
     display:none;
 }
@@ -18,10 +14,6 @@ body {
 #control {
     margin-left:52%;
     padding-right:1em;
-}
-
-#clear {
-    clear:both;
 }
 
 #control img {
