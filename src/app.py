@@ -13,10 +13,10 @@ def index():
 
 @app.route('/parameters/')
 def parameters():
-    return render_template('parameters.html', \
-            title='Parameters', \
-            libraries=['jquery','d3'], \
-            stylesheet=url_for('static', filename='main.css'), \
+    return render_template('parameters.html',
+            title='Parameters',
+            libraries=['jquery','d3'],
+            stylesheet=url_for('static', filename='main.css'),
             script=url_for('static', filename='parameters.js'))
 
 @app.route('/parameters/add/')
@@ -25,9 +25,9 @@ def add_parameters():
 
 @app.route('/logs/')
 def logs():
-    return render_template('logs.html', \
-            title='Logs', \
-            libraries=['jquery','jquery-ui'], \
+    return render_template('logs.html',
+            title='Logs',
+            libraries=['jquery','jquery-ui'],
             stylesheet=url_for('static', filename='logs.css'),
             script=url_for('static', filename='logs.js'))
 
