@@ -1,0 +1,24 @@
+#measurements_grid {
+    width:75%;
+}
+
+thead th {
+    border-bottom:solid 1px gray;
+}
+
+#measurement_name {
+    width:40%;
+}
+
+#measurement_units {
+    width:20%;
+}
+
+#measurement_range {
+    width:30%;
+}
+
+.table_header th {
+    text-align:left;
+    padding-right:1em;
+}

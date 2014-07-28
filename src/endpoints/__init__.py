@@ -25,6 +25,11 @@ class EventsEncoder(JSONEncoder):
             return {'id': o.id,\
                     'entry_time': o.entry_time,\
                     'entry': o.entry}
+        elif isinstance(o, events.MeasurementConfig):
+            return {'id': o.id,\
+                    'label': o.label,\
+                    'units': o.units, \
+                    'acceptable_range': o.acceptable_range()}
         elif isinstance(o, datetime):
             return o.isoformat()
         else:

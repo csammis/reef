@@ -15,7 +15,5 @@ class ConfigurationResource(restful.Resource):
             configs.append(events.MeasurementConfig('Specific Gravity', acceptable_range = [1.020, 1.025]))
             configs.append(events.MeasurementConfig('Magnesium', units = 'ppm', acceptable_range = [1250, 1350]))
 
-            configDict = {c.label: {'range': c.acceptable_range(), 'value_label': c.units } \
-                    for c in configs}
-            return jsonify(configs = configDict)
+            return jsonify(configs = configs)
 

@@ -31,6 +31,14 @@ def logs():
             stylesheet=url_for('static', filename='logs.css'),
             script=url_for('static', filename='logs.js'))
 
+@app.route('/settings/')
+def settings():
+    return render_template('settings.html',
+            title='Settings',
+            libraries=['jquery'],
+            stylesheet=url_for('static', filename='settings.css'),
+            script=url_for('static', filename='settings.js'))
+
 if __name__ == '__main__':
     app.run(debug=True)
 
