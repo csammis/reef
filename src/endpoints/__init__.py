@@ -8,6 +8,7 @@ import events
 api = restful.Api()
 events.initialize_sql('events/events.db')
 event_manager = events.EventManager()
+config_manager = events.ConfigManager()
 
 def try_get_time(args, key):
     try:
