@@ -1,4 +1,4 @@
-from events import initialize_sql, DBSession
+from events import DBSession
 from events.Measurement import Measurement
 from events.LogEntry import LogEntry
 import datetime
