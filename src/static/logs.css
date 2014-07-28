@@ -62,12 +62,6 @@ h4 {
     width:95%;
 }
 
-/* Override jquery-ui stylesheet for SVG calendar picker */
-.icon, .ui-datepicker-trigger {
-    width:16px;
-    height:16px;
-}
-
 article {
     padding:0.5em;
     border-bottom:dotted 1px gray;

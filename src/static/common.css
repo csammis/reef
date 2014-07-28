@@ -5,3 +5,10 @@ body {
 #clear {
     clear:both;
 }
+
+/* Override jquery-ui stylesheet for SVG calendar picker */
+.icon, .ui-datepicker-trigger {
+    width:16px;
+    height:16px;
+}
+

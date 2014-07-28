@@ -22,3 +22,7 @@ thead th {
     text-align:left;
     padding-right:1em;
 }
+
+.new_measurement {
+    width:95%;
+}

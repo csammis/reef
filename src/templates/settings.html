@@ -12,6 +12,22 @@
                     <th id="measurement_control"></th>
                 </tr>
             </thead>
+            <tfoot>
+                <tr class="measurement_new_entry">
+                    <td>
+                        <input type="text" id="new_measurement_name" class="new_measurement" placeholder="Name of measured parameter" />
+                    </td>
+                    <td>
+                        <input type="text" id="new_measurement_units" class="new_measurement" placeholder="Units, e.g. ppm" />
+                    </td>
+                    <td>
+                        <input type="text" id="new_measurement_range" class="new_measurement" placeholder="Low - high, e.g. 75 - 100" />
+                    </td>
+                    <td>
+                        <a href="#" id="submit_new_measurement"><img src="/static/images/submit-entry.svg" class="icon" alt="Add measurement" /></a>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
     <div id="clear"></div>
 </div>
