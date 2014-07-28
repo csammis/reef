@@ -16,3 +16,4 @@ from events.LogEntry import LogEntry
 from events.EventManager import EventManager
 from events.MeasurementType import MeasurementType
 from events.MeasurementConfig import MeasurementConfig
+from events.ConfigManager import ConfigManager
