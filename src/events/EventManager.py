@@ -5,8 +5,8 @@ import datetime
 
 class EventManager(object):
 
-    def __init__(self, dbname):
-        initialize_sql(dbname)
+    def __init__(self):
+        pass
 
     def add(self, obj):
         DBSession.add(obj)

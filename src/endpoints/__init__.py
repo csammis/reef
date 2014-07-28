@@ -6,7 +6,8 @@ import dateutil.parser
 import events
 
 api = restful.Api()
-event_manager = events.EventManager('events/events.db')
+events.initialize_sql('events/events.db')
+event_manager = events.EventManager()
 
 def try_get_time(args, key):
     try:

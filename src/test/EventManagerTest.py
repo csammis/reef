@@ -6,7 +6,8 @@ class TestEventManager(object):
 
     @classmethod
     def setup_class(cls):
-        cls._em = events.EventManager(':memory:')
+        events.initialize_sql(':memory:')
+        cls._em = events.EventManager()
 
     def setup(self):
         events.DBSession.query(events.Measurement).delete()
