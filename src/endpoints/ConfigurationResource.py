@@ -7,15 +7,15 @@ class ConfigurationResource(restful.Resource):
     def get(self, config_type):
         if config_type == 'measurements':
             configs = [];
-            configs.append(events.MeasurementConfig(events.MeasurementType.Temperature, 'Temp', [78, 82], 'Degrees F'))
-            configs.append(events.MeasurementConfig(events.MeasurementType.KH, 'Alkalinity', [125, 200], 'ppm CaCO3'))
-            configs.append(events.MeasurementConfig(events.MeasurementType.PH, 'pH', [8.1, 8.4], ''))
-            configs.append(events.MeasurementConfig(events.MeasurementType.Phosphate, value_label='parts per million'))
-            configs.append(events.MeasurementConfig(events.MeasurementType.Calcium, value_range=[420, 500], value_label='parts per million'))
-            configs.append(events.MeasurementConfig(events.MeasurementType.SpecificGravity, measurement_label='Specific gravity'))
-            configs.append(events.MeasurementConfig(events.MeasurementType.Magnesium, value_range=[1250, 1350], value_label='parts per million'))
+            configs.append(events.MeasurementConfig('Temperature', units = 'Degrees F', acceptable_range = [77, 82]))
+            configs.append(events.MeasurementConfig('Alkalinity', units = 'ppm CaCO3', acceptable_range = [125, 200]))
+            configs.append(events.MeasurementConfig('pH', acceptable_range = [8.1, 8.4]))
+            configs.append(events.MeasurementConfig('Phosphate', units = 'ppm'))
+            configs.append(events.MeasurementConfig('Calcium', units = 'ppm', acceptable_range = [420, 500]))
+            configs.append(events.MeasurementConfig('Specific Gravity', acceptable_range = [1.020, 1.025]))
+            configs.append(events.MeasurementConfig('Magnesium', units = 'ppm', acceptable_range = [1250, 1350]))
 
-            configDict = {c.measurement_type.name: {'range': c.value_range, 'measurement_label': c.measurement_label, 'value_label': c.value_label } \
+            configDict = {c.label: {'range': c.acceptable_range(), 'value_label': c.units } \
                     for c in configs}
             return jsonify(configs = configDict)
 
