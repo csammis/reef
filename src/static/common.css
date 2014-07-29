@@ -12,3 +12,7 @@ body {
     height:16px;
 }
 
+/* Indicates hovering over an editable field */
+.entry-hover {
+    background:lightyellow;
+}

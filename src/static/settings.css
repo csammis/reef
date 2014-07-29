@@ -18,6 +18,10 @@ thead th {
     width:30%;
 }
 
+#measurement_control {
+    width:5%;
+}
+
 .table_header th {
     text-align:left;
     padding-right:1em;

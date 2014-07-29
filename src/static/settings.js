@@ -18,7 +18,11 @@
     };
 
     function buildMeasurementType(config) {
-        var $row = $('<tr>').addClass('data');
+        var $row = $('<tr>').addClass('data')
+            .hover(
+                    function() { $(this).addClass('entry-hover'); $('.measurement-type-' + config.id).show(); },
+                    function() { $(this).removeClass('entry-hover'); $('.measurement-type-' + config.id).hide(); }
+                );
 
         $('<td>').html(config.label).appendTo($row);
         $('<td>').html(config.units).appendTo($row);
@@ -28,6 +32,16 @@
             range_html = Math.min(config.acceptable_range[0], config.acceptable_range[1]) + ' - ' + Math.max(config.acceptable_range[0], config.acceptable_range[1]);
         }
         $('<td>').html(range_html).appendTo($row);
+
+        var $control = $('<span>').addClass('measurement-type-' + config.id).hide();
+        $('<a>').attr('href', '#').html('<img src="/static/images/edit.svg" alt="Edit this measurement type" class="icon" />').click(function() {
+            
+        }).appendTo($control);
+        $('<a>').attr('href', '#').html('<img src="/static/images/delete.svg" alt="Delete this measurement type" class="icon" />').click(function() {
+
+        }).appendTo($control);
+
+        $('<td>').append($control).appendTo($row);
 
         return $row;
     };
