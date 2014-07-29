@@ -1,6 +1,6 @@
 from flask import jsonify
 from flask.ext import restful
-from flask.ext.restful import reqparse
+from flask.ext.restful import reqparse, abort
 from endpoints import config_manager
 import events
 
@@ -28,6 +28,9 @@ class ConfigurationResource(restful.Resource):
         if config_type == 'measurements':
             args = post_measurement_config_args.parse_args()
 
+            if len(args['label']) == 0:
+                abort(400, message="Required field 'label' cannot be blank")
+
             config = events.MeasurementConfig(args['label'], units = args['units'], acceptable_range = args['acceptable_range[]'])
             return jsonify(measurement_type_id = config_manager.add(config))
 
@@ -35,7 +38,19 @@ class ConfigurationResource(restful.Resource):
 class ConfigurationSingleResource(restful.Resource):
 
     def put(self, config_type, config_id):
-        pass
+        if config_type == 'measurements':
+            args = post_measurement_config_args.parse_args()
+
+            if len(args['label']) == 0:
+                abort(400, message="Required field 'label' cannot be blank")
+
+            config = config_manager.get_measurement_type(config_id)
+            if config is None:
+                abort(404, message='Measurement type with ID {} not found'.format(config_id))
+            
+            config_manager.update_measurement_type(config_id, args['label'], args['units'], args['acceptable_range[]'])
+            config = config_manager.get_measurement_type(config_id)
+            return { 'measurement_type': { 'id': config_id, 'label': config.label, 'units': config.units, 'acceptable_range': config.acceptable_range() } }, 201
 
     def get(self, config_type, config_id):
         if config_type == 'measurements':

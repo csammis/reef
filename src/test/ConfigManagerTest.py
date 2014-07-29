@@ -43,6 +43,21 @@ class TestConfigManager(object):
         assert mt.label == l[0].label
         assert mt.units == l[0].units
 
+    def test_update_measurement_type(self):
+        TestConfigManager.insert_measurement_types()
+
+        l = TestConfigManager._cm.get_measurement_types()
+        assert l[0].label == 'Test A'
+        assert l[0].units is None
+        assert l[0].acceptable_range() is None
+
+        TestConfigManager._cm.update_measurement_type(l[0].id, 'Update Test', 'mg', acceptable_range = [3, 5])
+        mt = TestConfigManager._cm.get_measurement_type(l[0].id)
+        assert mt.label == 'Update Test'
+        assert mt.units == 'mg'
+        assert mt.acceptable_range_low == 3
+        assert mt.acceptable_range_high == 5
+
     def test_delete_measurement_type(self):
         TestConfigManager.insert_measurement_types()
 
