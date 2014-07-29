@@ -38,7 +38,16 @@
             
         }).appendTo($control);
         $('<a>').attr('href', '#').html('<img src="/static/images/delete.svg" alt="Delete this measurement type" class="icon" />').click(function() {
-
+            $.ajax({
+                url: '/configs/measurements/' + config.id,
+                type: 'DELETE',
+                dataType: 'json'})
+            .done(function(json) {
+                $row.fadeOut({
+                    complete: function() { $(this).remove(); }
+                });
+            })
+            .fail(function(data) { alert(data.message); });
         }).appendTo($control);
 
         $('<td>').append($control).appendTo($row);
