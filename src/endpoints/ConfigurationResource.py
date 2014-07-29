@@ -30,3 +30,26 @@ class ConfigurationResource(restful.Resource):
 
             config = events.MeasurementConfig(args['label'], units = args['units'], acceptable_range = args['acceptable_range[]'])
             return jsonify(measurement_type_id = config_manager.add(config))
+
+
+class ConfigurationSingleResource(restful.Resource):
+
+    def put(self, config_type, config_id):
+        pass
+
+    def get(self, config_type, config_id):
+        if config_type == 'measurements':
+            config = config_manager.get_measurement_type(config_id)
+            if config is None:
+                abort(404, message='Measurement type with ID {} not found'.format(config_id))
+            return jsonify(measurement_type = config)
+        return '', 404
+
+    def delete(self, config_type, config_id):
+        if config_type == 'measurements':
+            config = config_manager.get_measurement_type(config_id)
+            if config is None:
+                abort(404, message='Measurement type with ID {} not found'.format(config_id))
+            config_manager.delete(config)
+        return '', 204
+

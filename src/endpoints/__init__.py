@@ -48,6 +48,7 @@ from endpoints import LogEntryResource
 api.add_resource(LogEntryResource.LogEntryResource, '/logentries/<int:logentry_id>')
 from endpoints import ConfigurationResource
 api.add_resource(ConfigurationResource.ConfigurationResource, '/configs/<string:config_type>')
+api.add_resource(ConfigurationResource.ConfigurationSingleResource, '/configs/<string:config_type>/<int:config_id>')
 
 
 def register(app):

@@ -32,3 +32,23 @@ class TestConfigManager(object):
         l = TestConfigManager._cm.get_measurement_types()
         assert len(l) == 3
         assert l[0].label < l[1].label and l[1].label < l[2].label
+
+    def test_get_measurement_type(self):
+        TestConfigManager.insert_measurement_types()
+
+        l = TestConfigManager._cm.get_measurement_types()
+
+        mt = TestConfigManager._cm.get_measurement_type(l[0].id)
+        assert mt is not None
+        assert mt.label == l[0].label
+        assert mt.units == l[0].units
+
+    def test_delete_measurement_type(self):
+        TestConfigManager.insert_measurement_types()
+
+        l = TestConfigManager._cm.get_measurement_types()
+        assert len(l) == 3
+
+        TestConfigManager._cm.delete(l[0])
+        l2 = TestConfigManager._cm.get_measurement_types()
+        assert len(l2) == 2
