@@ -12,14 +12,10 @@
         var $select = $('#measurement_type');
         $select.empty()
             .append('<option value="">-- Measurement types --</option>');
-        for (conf in json.configs) {
-            if (json.configs.hasOwnProperty(conf)) {
-                var label = conf;
-                if (json.configs[conf].measurement_label) {
-                    label = json.configs[conf].measurement_label;
-                }
-                $select.append('<option value="' + conf + '">' + label + '</option');
-            }
+
+        for(var i = 0; i < json.configs.length; i++) {
+            var config = json.configs[i];
+            $select.append('<option value="' + config.id + '">' + config.label + '</option');
         }
 
         onActionComplete();
@@ -27,34 +23,36 @@
 
     function doAddMeasurement() {
         var value = $('#measurement_value').val();
-        var type = $('#measurement_type').val();
+        var type_id = $('#measurement_type').val();
         var time = $('#measurement_time').val();
 
         if (value == '') {
             alert('fill in a value');
         }
-        else if (type == '') {
+        else if (type_id == '') {
             alert('select a type');
         }
         else {
             onActionStart();
-            sendAddMeasurement(type, time, value);
+            sendAddMeasurement(type_id, time, value);
         }
         return false;
     };
 
-    function sendAddMeasurement(type, time, value) {
+    function sendAddMeasurement(type_id, time, value) {
         $.ajax({
             url: '/measurements/',
             type: 'POST',
             dataType: 'json',
             data: {
-                'type': type,
+                'measurement_type_id': type_id,
                 'value': value,
                 'time': time
                 }
             })
-        .done(function(json) {loadAddMeasurementSuccess(json); });
+        .done(function(json) {loadAddMeasurementSuccess(json); })
+        .fail(function(data) { alert(data.message); })
+        .always(function() { onActionComplete(); });
     };
 
     function loadAddMeasurementSuccess(json) {
