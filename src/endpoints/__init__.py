@@ -38,14 +38,12 @@ class ModelEncoder(JSONEncoder):
             return JSONEncoder.default(self, o)
 
 
-from endpoints import MeasurementsResource
-api.add_resource(MeasurementsResource.MeasurementsResource, '/measurements/')
 from endpoints import MeasurementResource
-api.add_resource(MeasurementResource.MeasurementResource, '/measurements/<int:measurement_id>')
-from endpoints import LogEntriesResource
-api.add_resource(LogEntriesResource.LogEntriesResource, '/logentries/')
+api.add_resource(MeasurementResource.MeasurementResource, '/measurements/')
+api.add_resource(MeasurementResource.MeasurementSingleResource, '/measurements/<int:measurement_id>')
 from endpoints import LogEntryResource
-api.add_resource(LogEntryResource.LogEntryResource, '/logentries/<int:logentry_id>')
+api.add_resource(LogEntryResource.LogEntryResource, '/logentries/')
+api.add_resource(LogEntryResource.LogEntrySingleResource, '/logentries/<int:logentry_id>')
 from endpoints import ConfigurationResource
 api.add_resource(ConfigurationResource.ConfigurationResource, '/configs/<string:config_type>')
 api.add_resource(ConfigurationResource.ConfigurationSingleResource, '/configs/<string:config_type>/<int:config_id>')
