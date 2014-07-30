@@ -18,7 +18,7 @@
     };
 
     function buildMeasurementType(config) {
-        var $row = $('<tr>').addClass('data')
+        var $row = $('<tr>').addClass('data').addClass('measurement-type-id-' + config.id)
             .hover(
                     function() { $(this).addClass('entry-hover'); $('.measurement-type-' + config.id).show(); },
                     function() { $(this).removeClass('entry-hover'); $('.measurement-type-' + config.id).hide(); }
@@ -94,15 +94,7 @@
             originals.controlElement.empty().append(originals.controlSpan);
         };
 
-        originals.labelElement.empty()
-            .append('<input type="text" value="' + originals.label + '" class="inline-edit" id="inline-edit-label-' + id + '" />');
-        originals.unitsElement.empty()
-            .append('<input type="text" value="' + originals.units + '" class="inline-edit" id="inline-edit-units-' + id + '" />');
-        originals.rangeElement.empty()
-            .append('<input type="text" value="' + originals.range + '" class="inline-edit" id="inline-edit-range-' + id + '" />');
-        originals.controlSpan.detach();
-
-        $('<a>').attr('href', '#').html('<img src="/static/images/submit-entry.svg" alt="Save changes" class="icon" />').click(function() {
+        var submitEdit = function() {
             var newConfig = createJsonForUpdate('#inline-edit-label-' + id, '#inline-edit-units-' + id, '#inline-edit-range-' + id);
             $.ajax({
                 url: '/configs/measurements/' + id,
@@ -116,8 +108,20 @@
                 finished();
             })
             .fail(function(data) { alert('Unable to update measurement type: ' + data.responseJSON.message); });
+        };
 
-        }).appendTo(originals.controlElement);
+        originals.labelElement.empty()
+            .append('<input type="text" value="' + originals.label + '" class="inline-edit" id="inline-edit-label-' + id + '" />');
+        originals.unitsElement.empty()
+            .append('<input type="text" value="' + originals.units + '" class="inline-edit" id="inline-edit-units-' + id + '" />');
+        originals.rangeElement.empty()
+            .append('<input type="text" value="' + originals.range + '" class="inline-edit" id="inline-edit-range-' + id + '" />');
+
+        bindInputsToKeyHandler('.measurement-type-id-' + id, submitEdit, finished);
+        $('#inline-edit-label-' + id).focus().select();
+
+        originals.controlSpan.detach();
+        $('<a>').attr('href', '#').html('<img src="/static/images/submit-entry.svg" alt="Save changes" class="icon" />').click(submitEdit).appendTo(originals.controlElement);
         $('<a>').attr('href', '#').html('<img src="/static/images/cancel.svg" alt="Cancel edit" class="icon" />').click(finished).appendTo(originals.controlElement);
     }
 
@@ -146,6 +150,8 @@
 
     window.onload = function() {
         $('#submit_new_measurement').click(addNewMeasurement);
+        bindInputsToKeyHandler('.measurement_new_entry', addNewMeasurement);
         sendConfigRequest();
     };
+
 })();
