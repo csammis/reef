@@ -1,5 +1,4 @@
 import models
-from models.MeasurementType import MeasurementType
 import datetime
 
 class TestEventManager(object):
@@ -8,13 +7,23 @@ class TestEventManager(object):
     def setup_class(cls):
         models.initialize_sql(':memory:')
         cls._em = models.EventManager()
+        cls._cm = models.ConfigManager()
+        
+        mt1 = models.MeasurementConfig('Calcium', units = 'ppm')
+        mt2 = models.MeasurementConfig('Phosphate', units = 'ppm')
+        mt3 = models.MeasurementConfig('KH', units = 'ppm CaCO3')
+        cls._cm.add(mt1)
+        cls._cm.add(mt2)
+        cls._cm.add(mt3)
+
+        cls._mtypes = {'calcium': mt1.id, 'phosphate': mt2.id, 'KH': mt3.id}
 
     def setup(self):
         models.DBSession.query(models.Measurement).delete()
         models.DBSession.query(models.LogEntry).delete()
 
     def test_add_measurement_implicit_time(self):
-        m = models.Measurement(MeasurementType.Calcium)
+        m = models.Measurement(TestEventManager._mtypes['calcium'])
         m.value = 472
         TestEventManager._em.add(m)
 
@@ -25,7 +34,7 @@ class TestEventManager(object):
         assert l[0].measurement_time == m.measurement_time
 
     def test_add_measurement_explicit_time(self):
-        m = models.Measurement(MeasurementType.Calcium)
+        m = models.Measurement(TestEventManager._mtypes['calcium'])
         m.value = 472
         m.measurement_time = datetime.datetime.fromtimestamp(123456)
         TestEventManager._em.add(m)
@@ -37,9 +46,9 @@ class TestEventManager(object):
     @classmethod
     def insert_measurements(cls):
         dt = datetime.datetime
-        TestEventManager._em.add(models.Measurement(MeasurementType.Calcium, dt.fromtimestamp(123456), 472))
-        TestEventManager._em.add(models.Measurement(MeasurementType.Phosphate, dt.fromtimestamp(433563), 0.00))
-        TestEventManager._em.add(models.Measurement(MeasurementType.KH, dt.fromtimestamp(32242), 7.33))
+        TestEventManager._em.add(models.Measurement(cls._mtypes['calcium'], dt.fromtimestamp(123456), 472))
+        TestEventManager._em.add(models.Measurement(cls._mtypes['phosphate'], dt.fromtimestamp(433563), 0.00))
+        TestEventManager._em.add(models.Measurement(cls._mtypes['KH'], dt.fromtimestamp(32242), 7.33))
 
     def test_get_measurements_all(self):
         TestEventManager.insert_measurements()
@@ -57,7 +66,8 @@ class TestEventManager(object):
         m = TestEventManager._em.get_measurement(measurement_id)
         assert m is not None
         assert m.measurement_time == l[0].measurement_time
-        assert m.measurement_type == l[0].measurement_type
+        assert m.measurement_type_id == l[0].measurement_type_id
+        assert m.measurement_type.label == l[0].measurement_type.label
         assert m.value == l[0].value
 
     def test_get_measurement_not_found(self):
@@ -69,10 +79,10 @@ class TestEventManager(object):
     def test_get_measurements_with_parameters(self):
         TestEventManager.insert_measurements()
 
-        l = TestEventManager._em.get_measurements(parameters = [MeasurementType.Calcium, MeasurementType.KH])
+        l = TestEventManager._em.get_measurements(parameters = [TestEventManager._mtypes['calcium'], TestEventManager._mtypes['KH']])
         assert len(l) == 2
-        assert l[0].measurement_type == MeasurementType.KH
-        assert l[1].measurement_type == MeasurementType.Calcium
+        assert l[0].measurement_type_id == TestEventManager._mtypes['KH']
+        assert l[1].measurement_type_id == TestEventManager._mtypes['calcium']
 
     def test_get_measurements_greaterthan_time(self):
         TestEventManager.insert_measurements()
@@ -88,7 +98,7 @@ class TestEventManager(object):
         l = TestEventManager._em.get_measurements(timerange = trange)
         assert len(l) == 1
         assert l[0].value == 7.33
-        assert l[0].measurement_type == MeasurementType.KH
+        assert l[0].measurement_type_id == TestEventManager._mtypes['KH']
 
     def test_get_measurements_lessthan_time(self):
         TestEventManager.insert_measurements()
@@ -96,7 +106,7 @@ class TestEventManager(object):
         l = TestEventManager._em.get_measurements(timerange = {'end': datetime.datetime.fromtimestamp(100000)})
         assert len(l) == 1
         assert l[0].value == 7.33
-        assert l[0].measurement_type == MeasurementType.KH
+        assert l[0].measurement_type_id == TestEventManager._mtypes['KH']
 
     def test_delete_measurement(self):
         TestEventManager.insert_measurements()

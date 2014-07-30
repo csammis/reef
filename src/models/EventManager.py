@@ -32,7 +32,7 @@ class EventManager(object):
     def get_measurements(self, parameters = None, timerange = {}):
         query = DBSession.query(Measurement)
         if parameters is not None:
-            query = query.filter(Measurement.measurement_type.in_(parameters))
+            query = query.filter(Measurement.measurement_type_id.in_(parameters))
         if 'start' in timerange:
             query = query.filter(Measurement.measurement_time >= timerange['start'])
         if 'end' in timerange:

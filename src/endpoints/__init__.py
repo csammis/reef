@@ -21,7 +21,7 @@ class ModelEncoder(JSONEncoder):
         if isinstance(o, models.Measurement):
             return {'id': o.id,\
                     'measurement_time': o.measurement_time,\
-                    'measurement_type': o.measurement_type.name,\
+                    'measurement_type_id': o.measurement_type_id,\
                     'value': o.value}
         elif isinstance(o, models.LogEntry):
             return {'id': o.id,\
