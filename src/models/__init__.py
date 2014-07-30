@@ -14,5 +14,5 @@ def initialize_sql(dbname):
 from models.Measurement import Measurement
 from models.LogEntry import LogEntry
 from models.EventManager import EventManager
-from models.MeasurementConfig import MeasurementConfig
+from models.MeasurementType import MeasurementType
 from models.ConfigManager import ConfigManager

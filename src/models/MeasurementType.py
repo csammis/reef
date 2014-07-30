@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Float, UnicodeText
 from models import Base
 
-class MeasurementConfig(Base):
+class MeasurementType(Base):
 
     __tablename__ = 'MeasurementType'
     id = Column(Integer, primary_key=True)

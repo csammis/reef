@@ -1,5 +1,5 @@
 from models import DBSession
-from models.MeasurementConfig import MeasurementConfig
+from models.MeasurementType import MeasurementType
 
 class ConfigManager(object):
 
@@ -16,18 +16,18 @@ class ConfigManager(object):
         DBSession.commit()
 
     def get_measurement_type(self, measurement_type_id):
-        query = DBSession.query(MeasurementConfig).filter(MeasurementConfig.id == measurement_type_id)
+        query = DBSession.query(MeasurementType).filter(MeasurementType.id == measurement_type_id)
         if query.count() == 0:
             return None
         return query.first()
 
     def get_measurement_types(self):
-        query = DBSession.query(MeasurementConfig)
-        return query.order_by(MeasurementConfig.label.asc()).all()
+        query = DBSession.query(MeasurementType)
+        return query.order_by(MeasurementType.label.asc()).all()
 
     def update_measurement_type(self, measurement_type_id, label, units, acceptable_range):
-        updateDict = {MeasurementConfig.label: label, MeasurementConfig.units: units}
-        updateDict[MeasurementConfig.acceptable_range_low] = min(acceptable_range) if acceptable_range is not None else None
-        updateDict[MeasurementConfig.acceptable_range_high] = max(acceptable_range) if acceptable_range is not None else None
+        updateDict = {MeasurementType.label: label, MeasurementType.units: units}
+        updateDict[MeasurementType.acceptable_range_low] = min(acceptable_range) if acceptable_range is not None else None
+        updateDict[MeasurementType.acceptable_range_high] = max(acceptable_range) if acceptable_range is not None else None
 
-        DBSession.query(MeasurementConfig).filter(MeasurementConfig.id == measurement_type_id).update(updateDict)
+        DBSession.query(MeasurementType).filter(MeasurementType.id == measurement_type_id).update(updateDict)

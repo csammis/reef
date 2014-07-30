@@ -27,7 +27,7 @@ class ModelEncoder(JSONEncoder):
             return {'id': o.id,\
                     'entry_time': o.entry_time,\
                     'entry': o.entry}
-        elif isinstance(o, models.MeasurementConfig):
+        elif isinstance(o, models.MeasurementType):
             return {'id': o.id,\
                     'label': o.label,\
                     'units': o.units, \

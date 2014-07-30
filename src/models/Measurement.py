@@ -10,7 +10,7 @@ class Measurement(Base) :
     measurement_type_id = Column(Integer, ForeignKey('MeasurementType.id'))
     measurement_time = Column(DateTime, index = True, default=func.now(), nullable = False)
     value = Column(Float, nullable = True)
-    measurement_type = relationship('MeasurementConfig')
+    measurement_type = relationship('MeasurementType')
 
     def __init__(self, measurement_type_id, measurement_time = None, value = None) :
         self.measurement_type_id = measurement_type_id

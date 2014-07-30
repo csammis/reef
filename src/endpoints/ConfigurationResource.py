@@ -13,15 +13,6 @@ class ConfigurationResource(restful.Resource):
 
     def get(self, config_type):
         if config_type == 'measurements':
-            #configs = [];
-            #configs.append(models.MeasurementConfig('Temperature', units = 'Degrees F', acceptable_range = [77, 82]))
-            #configs.append(models.MeasurementConfig('Alkalinity', units = 'ppm CaCO3', acceptable_range = [125, 200]))
-            #configs.append(models.MeasurementConfig('pH', acceptable_range = [8.1, 8.4]))
-            #configs.append(models.MeasurementConfig('Phosphate', units = 'ppm'))
-            #configs.append(models.MeasurementConfig('Calcium', units = 'ppm', acceptable_range = [420, 500]))
-            #configs.append(models.MeasurementConfig('Specific Gravity', acceptable_range = [1.020, 1.025]))
-            #configs.append(models.MeasurementConfig('Magnesium', units = 'ppm', acceptable_range = [1250, 1350]))
-            
             return jsonify(configs = config_manager.get_measurement_types())
 
     def post(self, config_type):
@@ -31,7 +22,7 @@ class ConfigurationResource(restful.Resource):
             if len(args['label']) == 0:
                 abort(400, message="Required field 'label' cannot be blank")
 
-            config = models.MeasurementConfig(args['label'], units = args['units'], acceptable_range = args['acceptable_range[]'])
+            config = models.MeasurementType(args['label'], units = args['units'], acceptable_range = args['acceptable_range[]'])
             return jsonify(measurement_type_id = config_manager.add(config))
 
 

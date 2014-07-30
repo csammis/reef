@@ -9,9 +9,9 @@ class TestEventManager(object):
         cls._em = models.EventManager()
         cls._cm = models.ConfigManager()
         
-        mt1 = models.MeasurementConfig('Calcium', units = 'ppm')
-        mt2 = models.MeasurementConfig('Phosphate', units = 'ppm')
-        mt3 = models.MeasurementConfig('KH', units = 'ppm CaCO3')
+        mt1 = models.MeasurementType('Calcium', units = 'ppm')
+        mt2 = models.MeasurementType('Phosphate', units = 'ppm')
+        mt3 = models.MeasurementType('KH', units = 'ppm CaCO3')
         cls._cm.add(mt1)
         cls._cm.add(mt2)
         cls._cm.add(mt3)
