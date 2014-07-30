@@ -67,15 +67,8 @@
                 $stash.detach();
 
                 function finished() { $container.empty(); $stash.appendTo($container); }
-                
-                $('.id-' + id)
-                    .append('<input type="text" value="' + $originalElement.html() + '" class="logentry-inline-edit" id="inline-edit-' + id + '" />&nbsp;')
-                    .append('<a href="#" id="save-edit-' + id + '">Save</a> <a href="#" id="cancel-edit-' + id + '">Cancel</a>');
-                $('#cancel-edit-' + id).click(function() {
-                    finished();
-                    return false;
-                });
-                $('#save-edit-' + id).click(function() {
+
+                function submitEdit() {
                     var newEntry = $('#inline-edit-' + id).val();
                     $.ajax({
                         url: '/logentries/' + id,
@@ -86,8 +79,23 @@
                         }})
                     .done(function(json) { $originalElement.html(newEntry); finished(); })
                     .fail(function(json) { alert("Couldn't edit entry"); });
+                };
+
+                
+                $('.id-' + id)
+                    .append('<input type="text" value="' + $originalElement.html() + '" class="logentry-inline-edit" id="inline-edit-' + id + '" />&nbsp;')
+                    .append('<a href="#" id="save-edit-' + id + '">Save</a> <a href="#" id="cancel-edit-' + id + '">Cancel</a>');
+                $('#cancel-edit-' + id).click(function() {
+                    finished();
                     return false;
                 });
+                $('#save-edit-' + id).click(function() {
+                    submitEdit();
+                    return false;
+                });
+
+                bindInputsToKeyHandler('.id-' + id, submitEdit, finished);
+                $('#inline-edit-' + id).focus().select();
             })
             .hover(
                     function() { $(this).addClass('entry-hover'); },
@@ -151,6 +159,8 @@
             buttonImage: '/static/images/calendar.svg',
             buttonImageOnly: true});
 
+        bindInputsToKeyHandler('.entry-date', doAddLogEntry);
+
         return $span;
     };
 
@@ -206,7 +216,6 @@
         var time_display = new Date(entry_time).toLocaleDateString();
 
         var last_time_display = $('#logentries').find('time:first').text();
-        console.log(last_time_display);
 
         $('div[class="logentry-empty"]').remove();
 
@@ -222,9 +231,9 @@
             return this.length !== 0;
         }
 
-        $('#add_log_entry').submit(doAddLogEntry);
         $('#submit-link').click(doAddLogEntry);
         $('#changedate').click(showDateEntry);
+        bindInputsToKeyHandler('#control', doAddLogEntry);
 
         sendDataRequest();
     };
