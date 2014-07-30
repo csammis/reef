@@ -1,6 +1,6 @@
-from events import DBSession
-from events.Measurement import Measurement
-from events.LogEntry import LogEntry
+from models import DBSession
+from models.Measurement import Measurement
+from models.LogEntry import LogEntry
 import datetime
 
 class EventManager(object):

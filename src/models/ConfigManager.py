@@ -1,5 +1,5 @@
-from events import DBSession
-from events.MeasurementConfig import MeasurementConfig
+from models import DBSession
+from models.MeasurementConfig import MeasurementConfig
 
 class ConfigManager(object):
 

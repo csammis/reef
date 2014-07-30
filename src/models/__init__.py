@@ -11,9 +11,9 @@ def initialize_sql(dbname):
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
 
-from events.Measurement import Measurement
-from events.LogEntry import LogEntry
-from events.EventManager import EventManager
-from events.MeasurementType import MeasurementType
-from events.MeasurementConfig import MeasurementConfig
-from events.ConfigManager import ConfigManager
+from models.Measurement import Measurement
+from models.LogEntry import LogEntry
+from models.EventManager import EventManager
+from models.MeasurementType import MeasurementType
+from models.MeasurementConfig import MeasurementConfig
+from models.ConfigManager import ConfigManager

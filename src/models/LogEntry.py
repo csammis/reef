@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, UnicodeText, DateTime
 from sqlalchemy import func
-from events import Base
+from models import Base
 
 class LogEntry(Base) :
 

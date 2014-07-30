@@ -2,7 +2,7 @@ from flask import jsonify
 from flask.ext import restful
 from flask.ext.restful import reqparse, abort
 from endpoints import event_manager, try_get_time
-import events
+import models
 
 get_logentry_args = reqparse.RequestParser()
 get_logentry_args.add_argument('start', type=str)
@@ -37,6 +37,6 @@ class LogEntriesResource(restful.Resource):
         if len(entry) == 0:
             abort(400, message="'entry' must be supplied")
 
-        event = events.LogEntry(entry_time = entry_time, entry = args['entry'])
+        event = models.LogEntry(entry_time = entry_time, entry = args['entry'])
         return jsonify(log_id = event_manager.add(event))
 

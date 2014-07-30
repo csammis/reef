@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, Float, DateTime, Enum
 from sqlalchemy import func
-from events import Base
-from events import MeasurementType
-from events import MeasurementTypeDecorator
+from models import Base
+from models import MeasurementType
+from models import MeasurementTypeDecorator
 
 class Measurement(Base) :
 

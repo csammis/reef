@@ -1,31 +1,31 @@
-import events
-from events.MeasurementType import MeasurementType
+import models
+from models.MeasurementType import MeasurementType
 import datetime
 
 class TestEventManager(object):
 
     @classmethod
     def setup_class(cls):
-        events.initialize_sql(':memory:')
-        cls._em = events.EventManager()
+        models.initialize_sql(':memory:')
+        cls._em = models.EventManager()
 
     def setup(self):
-        events.DBSession.query(events.Measurement).delete()
-        events.DBSession.query(events.LogEntry).delete()
+        models.DBSession.query(models.Measurement).delete()
+        models.DBSession.query(models.LogEntry).delete()
 
     def test_add_measurement_implicit_time(self):
-        m = events.Measurement(MeasurementType.Calcium)
+        m = models.Measurement(MeasurementType.Calcium)
         m.value = 472
         TestEventManager._em.add(m)
 
         l = TestEventManager._em.get_measurements()
         assert len(l) == 1
-        assert type(l[0]) is events.Measurement
+        assert type(l[0]) is models.Measurement
         assert l[0].value == 472
         assert l[0].measurement_time == m.measurement_time
 
     def test_add_measurement_explicit_time(self):
-        m = events.Measurement(MeasurementType.Calcium)
+        m = models.Measurement(MeasurementType.Calcium)
         m.value = 472
         m.measurement_time = datetime.datetime.fromtimestamp(123456)
         TestEventManager._em.add(m)
@@ -37,9 +37,9 @@ class TestEventManager(object):
     @classmethod
     def insert_measurements(cls):
         dt = datetime.datetime
-        TestEventManager._em.add(events.Measurement(MeasurementType.Calcium, dt.fromtimestamp(123456), 472))
-        TestEventManager._em.add(events.Measurement(MeasurementType.Phosphate, dt.fromtimestamp(433563), 0.00))
-        TestEventManager._em.add(events.Measurement(MeasurementType.KH, dt.fromtimestamp(32242), 7.33))
+        TestEventManager._em.add(models.Measurement(MeasurementType.Calcium, dt.fromtimestamp(123456), 472))
+        TestEventManager._em.add(models.Measurement(MeasurementType.Phosphate, dt.fromtimestamp(433563), 0.00))
+        TestEventManager._em.add(models.Measurement(MeasurementType.KH, dt.fromtimestamp(32242), 7.33))
 
     def test_get_measurements_all(self):
         TestEventManager.insert_measurements()
@@ -107,7 +107,7 @@ class TestEventManager(object):
         assert len(TestEventManager._em.get_measurements()) == 2
 
     def test_add_logentry_implicit_time(self):
-        le = events.LogEntry('Hi there')
+        le = models.LogEntry('Hi there')
         TestEventManager._em.add(le)
 
         l = TestEventManager._em.get_log_entries()
@@ -116,7 +116,7 @@ class TestEventManager(object):
         assert l[0].entry_time == le.entry_time
 
     def test_add_logentry_explicit_time(self):
-        le = events.LogEntry('Oh hello', datetime.datetime.fromtimestamp(123456))
+        le = models.LogEntry('Oh hello', datetime.datetime.fromtimestamp(123456))
         TestEventManager._em.add(le)
 
         l = TestEventManager._em.get_log_entries()
@@ -126,9 +126,9 @@ class TestEventManager(object):
     @classmethod
     def insert_log_entries(cls):
         dt = datetime.datetime
-        TestEventManager._em.add(events.LogEntry('abc', dt.fromtimestamp(123456)))
-        TestEventManager._em.add(events.LogEntry('def', dt.fromtimestamp(454335)))
-        TestEventManager._em.add(events.LogEntry('ghi', dt.fromtimestamp(34432)))
+        TestEventManager._em.add(models.LogEntry('abc', dt.fromtimestamp(123456)))
+        TestEventManager._em.add(models.LogEntry('def', dt.fromtimestamp(454335)))
+        TestEventManager._em.add(models.LogEntry('ghi', dt.fromtimestamp(34432)))
 
     def test_get_logentry_all(self):
         TestEventManager.insert_log_entries()

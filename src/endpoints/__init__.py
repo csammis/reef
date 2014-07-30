@@ -3,12 +3,12 @@ from flask.ext.restful import abort
 from datetime import datetime
 from json import JSONEncoder
 import dateutil.parser
-import events
+import models
 
 api = restful.Api()
-events.initialize_sql('events/events.db')
-event_manager = events.EventManager()
-config_manager = events.ConfigManager()
+models.initialize_sql('models/reefpi.db')
+event_manager = models.EventManager()
+config_manager = models.ConfigManager()
 
 def try_get_time(args, key):
     try:
@@ -16,18 +16,18 @@ def try_get_time(args, key):
     except:
         abort(400, message="Unable to parse '{}' parameter '{}' into datetime".format(key, args[key]))
 
-class EventsEncoder(JSONEncoder):
+class ModelEncoder(JSONEncoder):
     def default(self, o):
-        if isinstance(o, events.Measurement):
+        if isinstance(o, models.Measurement):
             return {'id': o.id,\
                     'measurement_time': o.measurement_time,\
                     'measurement_type': o.measurement_type.name,\
                     'value': o.value}
-        elif isinstance(o, events.LogEntry):
+        elif isinstance(o, models.LogEntry):
             return {'id': o.id,\
                     'entry_time': o.entry_time,\
                     'entry': o.entry}
-        elif isinstance(o, events.MeasurementConfig):
+        elif isinstance(o, models.MeasurementConfig):
             return {'id': o.id,\
                     'label': o.label,\
                     'units': o.units, \
@@ -53,4 +53,4 @@ api.add_resource(ConfigurationResource.ConfigurationSingleResource, '/configs/<s
 
 def register(app):
     api.init_app(app)
-    app.json_encoder = EventsEncoder
+    app.json_encoder = ModelEncoder

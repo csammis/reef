@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Float, UnicodeText
-from events import Base
+from models import Base
 
 class MeasurementConfig(Base):
 

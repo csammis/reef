@@ -1,6 +1,7 @@
 *.db
 *.db-journal
 *.swp
+*.swo
 __pycache__/
 *.py[cod]
 venv/

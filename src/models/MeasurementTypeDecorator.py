@@ -1,5 +1,5 @@
 from sqlalchemy.types import TypeDecorator, Enum
-from events import MeasurementType
+from models import MeasurementType
 
 class Enum3(TypeDecorator):
 

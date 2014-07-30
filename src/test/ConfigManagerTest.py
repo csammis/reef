@@ -1,30 +1,30 @@
-import events
+import models
 
 class TestConfigManager(object):
 
     @classmethod
     def setup_class(cls):
-        events.initialize_sql(':memory:')
-        cls._cm = events.ConfigManager()
+        models.initialize_sql(':memory:')
+        cls._cm = models.ConfigManager()
 
     def setup(self):
-        events.DBSession.query(events.MeasurementConfig).delete()
+        models.DBSession.query(models.MeasurementConfig).delete()
 
     def test_add_measurement_type(self):
-        m = events.MeasurementConfig('Test')
+        m = models.MeasurementConfig('Test')
         TestConfigManager._cm.add(m)
 
         l = TestConfigManager._cm.get_measurement_types()
         assert len(l) == 1
-        assert type(l[0]) is events.MeasurementConfig
+        assert type(l[0]) is models.MeasurementConfig
         assert l[0].label == 'Test'
         assert l[0].units is None
     
     @classmethod
     def insert_measurement_types(cls):
-        TestConfigManager._cm.add(events.MeasurementConfig('Test C', units = 'ppm'))
-        TestConfigManager._cm.add(events.MeasurementConfig('Test A'))
-        TestConfigManager._cm.add(events.MeasurementConfig('Test B', units = 'ppb', acceptable_range = [12, 63]))
+        TestConfigManager._cm.add(models.MeasurementConfig('Test C', units = 'ppm'))
+        TestConfigManager._cm.add(models.MeasurementConfig('Test A'))
+        TestConfigManager._cm.add(models.MeasurementConfig('Test B', units = 'ppb', acceptable_range = [12, 63]))
 
     def test_get_measurement_types(self):
         TestConfigManager.insert_measurement_types()
