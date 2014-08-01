@@ -50,9 +50,11 @@
 
             // Initialize a new SVG with all the graph trimmings
             var label = configs[mt].label;
-            $('#graphs').append('<h3>' + label + '</h3>').append('<div id="graph' + mt + '"></div>').addClass('graphdiv');
+            var $graphs = $('#graphs');
+            $('<h3>').html(label).appendTo($graphs);
+            $('<div id="graph-' + mt + '">').addClass('graphdisplay').appendTo($graphs);
 
-            svgs[mt] = d3.select('#graph' + mt).append('svg:svg')
+            svgs[mt] = d3.select('#graph-' + mt).append('svg:svg')
                 .attr('width', WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
                 .attr('height', HEIGHT + MARGIN.TOP + MARGIN.BOTTOM)
                 .append('g')
@@ -99,6 +101,8 @@
             svgs[mt].append('path')
                 .attr('stroke', 'black')
                 .attr('class', 'line');
+
+            buildControlsForMeasurementType(mt);
         }
 
         return svgs[mt];
@@ -124,7 +128,6 @@
                 dataSplits[mt] = initializeNewDataset();
             }
             renderDatasetForMeasurementTypeOverTime(mt);
-            buildParameterEntryForMeasurementType(mt);
         }
     };
 
@@ -136,23 +139,40 @@
         };
     }
 
-    function buildParameterEntryForMeasurementType(mt) {
-        var $entryContainer = $('<div>').addClass('entry-' + mt).appendTo($('#graphs'));
+    function buildControlsForMeasurementType(mt) {
+        var $entryContainer = $('<div>').addClass('entry-' + mt).addClass('graphcontrol').appendTo($('#graphs'));
 
-        $('<span>').html('New entry: ').appendTo($entryContainer);
+        var entryLabel = configs[mt].units;
+        if (entryLabel == '') {
+            entryLabel = configs[mt].label;
+        }
+        $('<h4>').html('New entry').appendTo($entryContainer);
+        $('<span>').addClass('entry-units').html(entryLabel + ':&nbsp;').appendTo($entryContainer);
         $('<span>').html('<input type="text" class="parameter-entry" id="parameter-entry-' + mt + '" /> ').appendTo($entryContainer);
-        $('<span>').addClass('entry-units').html(configs[mt].units).appendTo($entryContainer);
-        
+
         function submitEntry() {
             var $input = $('#parameter-entry-' + mt);
             var value = $input.val();
+            var post_data = {
+                'value': value,
+                'measurement_type_id': mt
+            };
+
+            var entry_time = $('#entry-time-' + mt).val();
+            if (entry_time != undefined) {
+                // Since there's no time part and the server's going to convert to UTC,
+                // convert to midnight UTC local equivalent so the tz conversion won't jack everything up
+                var d = new Date(entry_time);
+                d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+                entry_time = d.toString();
+                post_data['time'] = entry_time;
+            }
+
             $.ajax({
                 url: '/measurements/',
                 type: 'POST',
                 dataType: 'json',
-                data: {
-                    'value': value,
-                    'measurement_type_id': mt }
+                data: post_data
             })
             .done(function(json) {
                 $input.val('').focus();
@@ -161,11 +181,21 @@
             })
             .fail(function(data) { alert(data.message); });
         };
+        $('<span>').addClass('entry-units').html('<br />Measured:&nbsp;').appendTo($entryContainer);
+        $('<input type="text" class="date-entry" id="entry-time-' + mt + '">').appendTo($entryContainer).datepicker({
+                showOtherMonths: true,
+                selectOtherMonths: true,
+                showOn: 'both',
+                buttonImage: '/static/images/calendar.svg',
+                buttonImageOnly: true})
+            .datepicker("setDate", new Date());
 
         $('<a>').attr('href', '#').css('margin-left','0.5em').html('save').click(function() {
             submitEntry();
             return false;
         }).appendTo($entryContainer);
+
+        $('<div style="clear:both;">').appendTo($('#graphs'));
 
         bindInputsToKeyHandler('.entry-' + mt, submitEntry);
     };

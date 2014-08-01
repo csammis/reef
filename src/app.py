@@ -15,7 +15,7 @@ def index():
 def parameters():
     return render_template('parameters.html',
             title='Parameters',
-            libraries=['jquery','d3'],
+            libraries=['jquery','d3','jquery-ui'],
             stylesheet=url_for('static', filename='parameters.css'),
             script=url_for('static', filename='parameters.js'))
 
