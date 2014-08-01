@@ -42,7 +42,8 @@ class MeasurementResource(restful.Resource):
             measurement_time = try_get_time(args, 'time')
 
         event = models.Measurement(measurement_type_id = measurement_type.id, measurement_time = measurement_time, value = args['value'])
-        return jsonify(measurement_id = event_manager.add(event))
+        event_manager.add(event)
+        return jsonify(event = event)
 
 
 #
