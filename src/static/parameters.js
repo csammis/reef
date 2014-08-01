@@ -11,6 +11,8 @@
 
     var svgs = {};
     var configs = {};
+    // configIDs is used to support iterating over the configurations as they're returned from the server as opposed to some arbitrary for (.. in ..) order
+    var configIDs = new Array();
     var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
     var dataSplits = {};
 
@@ -27,7 +29,9 @@
         for (var i = 0; i < json.configs.length; i++) {
             var config_id = json.configs[i].id;
             configs[config_id] = json.configs[i];
+            configIDs.push(config_id);
         }
+        configs['length'] = json.configs.length;
         sendDataRequest();
     };
 
@@ -54,19 +58,15 @@
                 .append('g')
                 .attr('transform', 'translate(' + MARGIN.LEFT + ',' + MARGIN.TOP + ')');
 
-            var xAxis = d3.svg.axis().scale(ds.xScale).orient('bottom');
-            var yAxis = d3.svg.axis().scale(ds.yScale).orient('left');
+            
 
             // Axes and labeling
             svgs[mt].append('g')
                 .attr('class', 'xAxis')
-                .attr('transform', 'translate(0,' + (HEIGHT - VERTICAL_PADDING) + ')')
-                .call(xAxis);
-
+                .attr('transform', 'translate(0,' + (HEIGHT - VERTICAL_PADDING) + ')');
             svgs[mt].append('g')
                 .attr('class', 'yAxis')
-                .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)')
-                .call(yAxis);
+                .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)');
 
             svgs[mt].append('text')
                 .attr('x', (WIDTH + MARGIN.LEFT) / 2)
@@ -96,9 +96,14 @@
                     .attr('width', WIDTH - (HORIZONTAL_PADDING * 2))
                     .attr('height', ds.yScale(v0) - ds.yScale(v1))
                     .attr('fill', 'lightgreen')
-                    .attr('stroke', 'darkgreen');
+                    .attr('stroke', 'darkgreen')
+                    .attr('class', 'acceptable_range');
             }
 
+            // Point connecting path element
+            svgs[mt].append('path')
+                .attr('stroke', 'black')
+                .attr('class', 'line');
         }
 
         return svgs[mt];
@@ -109,19 +114,20 @@
         var full_dataset = json.measurements;
 
         // Split up the full dataset into measurement-specific slices
-        var measurementTypes = new Array();
         for (var i = 0; i < full_dataset.length; i++) {
             d = full_dataset[i];
             if (dataSplits[d.measurement_type_id] === undefined) {
                 dataSplits[d.measurement_type_id] = initializeNewDataset();
-                measurementTypes.push(d.measurement_type_id);
             }
             dataSplits[d.measurement_type_id].data.push(full_dataset[i]);
         }
         
         // Generate a graph and controls for each measurement type
-        for (var i = 0; i < measurementTypes.length; i++) {
-            var mt = measurementTypes[i];
+        for (var c = 0; c < configIDs.length; c++) {
+            var mt = configs[configIDs[c]].id;
+            if (dataSplits[mt] === undefined) {
+                dataSplits[mt] = initializeNewDataset();
+            }
             renderDatasetForMeasurementTypeOverTime(mt);
             buildParameterEntryForMeasurementType(mt);
         }
@@ -139,7 +145,8 @@
         var $entryContainer = $('<div>').addClass('entry-' + mt).appendTo($('#graphs'));
 
         $('<span>').html('New entry: ').appendTo($entryContainer);
-        $('<span>').html('<input type="text" class="parameter-entry" id="parameter-entry-' + mt + '" /> ' + configs[mt].units).appendTo($entryContainer);
+        $('<span>').html('<input type="text" class="parameter-entry" id="parameter-entry-' + mt + '" /> ').appendTo($entryContainer);
+        $('<span>').addClass('entry-units').html(configs[mt].units).appendTo($entryContainer);
         
         function submitEntry() {
             var $input = $('#parameter-entry-' + mt);
@@ -184,16 +191,24 @@
             .x(function(d) { return ds.xScale(timeFormat.parse(d.measurement_time)); })
             .y(function(d) { return ds.yScale(d.value); })
             .interpolate('linear');
-            
-        s.append('path')
-            .attr('d', lineFunction(ds.data))
-            .attr('class', 'measurement_' + mt + ' line');
-
-
+        
         var points = s.selectAll('circle').data(ds.data);
+        var line = s.select('path.line').data(ds.data);
+        
         points.transition()
             .attr('cx', function(d) { return ds.xScale(xPos(d)); })
             .attr('cy', function(d) { return ds.yScale(yPos(d)); });
+        line.transition()
+            .attr('d', lineFunction(ds.data));
+
+        if (configs[mt].acceptable_range) {
+            var v0 = Math.min(configs[mt].acceptable_range[0], configs[mt].acceptable_range[1]);
+            var v1 = Math.max(configs[mt].acceptable_range[0], configs[mt].acceptable_range[1]);
+            s.select('.acceptable_range').transition()
+                .attr('y', ds.yScale(v1))
+                .attr('height', ds.yScale(v0) - ds.yScale(v1));
+        }
+
         points.enter()
            .append('circle')
            .attr('class', function(d) { return 'measurement_' + d.measurement_type; })
@@ -201,6 +216,11 @@
            .attr('cy', function(d) { return ds.yScale(yPos(d)); })
            .attr('r', 4);
 
+        // Draw the axes
+        var xAxis = d3.svg.axis().scale(ds.xScale).orient('bottom');
+        s.selectAll('.xAxis').call(xAxis);
+        var yAxis = d3.svg.axis().scale(ds.yScale).orient('left');
+        s.selectAll('.yAxis').call(yAxis);
     }
 
     $(function() {
