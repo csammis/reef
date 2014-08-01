@@ -6,8 +6,18 @@ body {
     clear:both;
 }
 
+.icon {
+    width:16px;
+    height:16px;
+    opacity:0.75;
+}
+
+.icon:hover {
+    opacity:1.0;
+}
+
 /* Override jquery-ui stylesheet for SVG calendar picker */
-.icon, .ui-datepicker-trigger {
+.ui-datepicker-trigger {
     width:16px;
     height:16px;
 }
