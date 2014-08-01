@@ -58,8 +58,6 @@
                 .append('g')
                 .attr('transform', 'translate(' + MARGIN.LEFT + ',' + MARGIN.TOP + ')');
 
-            
-
             // Axes and labeling
             svgs[mt].append('g')
                 .attr('class', 'xAxis')
@@ -71,7 +69,7 @@
             svgs[mt].append('text')
                 .attr('x', (WIDTH + MARGIN.LEFT) / 2)
                 .attr('y', HEIGHT + MARGIN.BOTTOM)
-                .style('text-anchor', 'middle')
+                .attr('class', 'axis_label')
                 .text('Measurement date');
 
             if (configs[mt].units) {
@@ -80,8 +78,7 @@
                     .attr('y', 0 - MARGIN.LEFT)
                     .attr('x', 0 - (HEIGHT / 2))
                     .attr('dy', '1em')
-                    .style('text-anchor', 'middle')
-                    .style('font-family', 'sans-serif')
+                    .attr('class', 'axis_label')
                     .text(configs[mt].units);
             }
 
@@ -95,8 +92,6 @@
                     .attr('y', ds.yScale(v1))
                     .attr('width', WIDTH - (HORIZONTAL_PADDING * 2))
                     .attr('height', ds.yScale(v0) - ds.yScale(v1))
-                    .attr('fill', 'lightgreen')
-                    .attr('stroke', 'darkgreen')
                     .attr('class', 'acceptable_range');
             }
 

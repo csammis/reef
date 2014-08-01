@@ -16,7 +16,7 @@ def parameters():
     return render_template('parameters.html',
             title='Parameters',
             libraries=['jquery','d3'],
-            stylesheet=url_for('static', filename='main.css'),
+            stylesheet=url_for('static', filename='parameters.css'),
             script=url_for('static', filename='parameters.js'))
 
 @app.route('/parameters/add/')

@@ -19,6 +19,11 @@ svg {
     shape-rendering:crispEdges;
 }
 
+.axis_label {
+    font-size:11px
+    text-anchor:middle;
+}
+
 .measurement_Phosphate {
     fill:green;
     stroke:darkgreen;
@@ -74,3 +79,7 @@ svg {
     stroke-width:1;
 }
 
+.acceptable_range {
+    fill:lightgreen;
+    stroke:darkgreen;
+}
