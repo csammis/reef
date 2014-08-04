@@ -16,32 +16,28 @@
     var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
     var dataSplits = {};
 
-
     function sendConfigRequest() {
         $.ajax({
             url: '/configs/measurements',
             type: 'GET',
             dataType: 'json'})
-        .done(function(json) { stashConfigs(json); });
-    };
+        .done(function(json) { stashConfigsAndLoadData(json); });
+    }
 
-    function stashConfigs(json) {
+    function stashConfigsAndLoadData(json) {
         for (var i = 0; i < json.configs.length; i++) {
             var config_id = json.configs[i].id;
             configs[config_id] = json.configs[i];
             configIDs.push(config_id);
         }
         configs['length'] = json.configs.length;
-        sendDataRequest();
-    };
-
-    function sendDataRequest() {
+        
         $.ajax({
             url: '/measurements/',
             type: 'GET',
             dataType: 'json'})
         .done(function(json) { renderJson(json); });
-    };
+    }
 
     function getSvgForParameter(mt) {
         if (!svgs.hasOwnProperty(mt)) {
@@ -109,12 +105,19 @@
     }
     
     function renderJson(json) {
-
         var full_dataset = json.measurements;
+
+        function initializeNewDataset() {
+            return {
+                data: new Array(),
+                xScale: d3.time.scale().range([HORIZONTAL_PADDING, WIDTH - HORIZONTAL_PADDING]),
+                yScale: d3.scale.linear().range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING])
+            };
+        }
 
         // Split up the full dataset into measurement-specific slices
         for (var i = 0; i < full_dataset.length; i++) {
-            d = full_dataset[i];
+            var d = full_dataset[i];
             if (dataSplits[d.measurement_type_id] === undefined) {
                 dataSplits[d.measurement_type_id] = initializeNewDataset();
             }
@@ -129,16 +132,8 @@
             }
             renderDatasetForMeasurementTypeOverTime(mt);
         }
-    };
-
-    function initializeNewDataset() {
-        return {
-            data: new Array(),
-            xScale: d3.time.scale().range([HORIZONTAL_PADDING, WIDTH - HORIZONTAL_PADDING]),
-            yScale: d3.scale.linear().range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING])
-        };
     }
-
+    
     function buildControlsForMeasurementType(mt) {
         var $entryContainer = $('<div>').addClass('entry-' + mt).addClass('graphcontrol').appendTo($('#graphs'));
 
@@ -198,10 +193,9 @@
         $('<div style="clear:both;">').appendTo($('#graphs'));
 
         bindInputsToKeyHandler('.entry-' + mt, submitEntry);
-    };
+    }
 
     function renderDatasetForMeasurementTypeOverTime(mt) {
-
         function xPos(d) { return timeFormat.parse(d.measurement_time); };
         function yPos(d) { return d.value; };
 
@@ -247,10 +241,6 @@
         var yAxis = d3.svg.axis().scale(ds.yScale).orient('left');
         s.selectAll('.yAxis').call(yAxis);
     }
-
-    $(function() {
-        // Bind up html controls
-    });
 
     window.onload = sendConfigRequest();
 })();
