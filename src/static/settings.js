@@ -20,8 +20,8 @@
     function buildMeasurementType(config) {
         var $row = $('<tr>').addClass('data').addClass('measurement-type-id-' + config.id)
             .hover(
-                    function() { $(this).addClass('entry-hover'); $('.measurement-type-' + config.id).show(); },
-                    function() { $(this).removeClass('entry-hover'); $('.measurement-type-' + config.id).hide(); }
+                    function() { $(this).addClass('entry-hover'); /*$('.measurement-type-' + config.id).show();*/ },
+                    function() { $(this).removeClass('entry-hover'); /*$('.measurement-type-' + config.id).hide();*/ }
                 );
 
         $('<td>').addClass(config.id + '-label').html(config.label).appendTo($row);
@@ -33,22 +33,31 @@
         }
         $('<td>').addClass(config.id + '-range').html(range_html).appendTo($row);
 
-        var $control = $('<span>').addClass('measurement-type-' + config.id).hide();
-        $('<a>').attr('href', '#').html('<img src="/static/images/edit.svg" alt="Edit this measurement type" class="icon" />').click(function() {
-            onEditMeasurementType(config.id);
-        }).appendTo($control);
-        $('<a>').attr('href', '#').html('<img src="/static/images/delete.svg" alt="Delete this measurement type" class="icon" />').click(function() {
-            $.ajax({
-                url: '/configs/measurements/' + config.id,
-                type: 'DELETE',
-                dataType: 'json'})
-            .done(function(json) {
-                $row.fadeOut({
-                    complete: function() { $(this).remove(); }
-                });
+        var $control = $('<span>').addClass('measurement-type-' + config.id);//.hide();
+        $('<button>').append(
+                $('<img>').addClass('icon').attr('src','/static/images/edit.svg'))
+            .button()
+            .addClass('inline-button')
+            .click(function() { onEditMeasurementType(config.id); })
+            .appendTo($control);
+
+        $('<button>').append(
+                $('<img>').addClass('icon').attr('src', '/static/images/delete.svg'))
+            .button()
+            .addClass('inline-button')
+            .click(function() {
+                $.ajax({
+                    url: '/configs/measurements/' + config.id,
+                    type: 'DELETE',
+                    dataType: 'json'})
+                .done(function(json) {
+                    $row.fadeOut({
+                        complete: function() { $(this).remove(); }
+                    });
+                })
+                .fail(function(data) { alert(data.responseJSON.message); });
             })
-            .fail(function(data) { alert(data.responseJSON.message); });
-        }).appendTo($control);
+            .appendTo($control);
 
         $('<td>').addClass(config.id + '-control').append($control).appendTo($row);
 
@@ -121,8 +130,19 @@
         $('#inline-edit-label-' + id).focus().select();
 
         originals.controlSpan.detach();
-        $('<a>').attr('href', '#').html('<img src="/static/images/submit-entry.svg" alt="Save changes" class="icon" />').click(submitEdit).appendTo(originals.controlElement);
-        $('<a>').attr('href', '#').html('<img src="/static/images/cancel.svg" alt="Cancel edit" class="icon" />').click(finished).appendTo(originals.controlElement);
+        $('<button>').append(
+                $('<img>').addClass('icon').attr('src', '/static/images/submit-entry.svg'))
+            .button()
+            .addClass('inline-button')
+            .click(submitEdit)
+            .appendTo(originals.controlElement);
+
+        $('<button>').append(
+                $('<img>').addClass('icon').attr('src', '/static/images/cancel.svg'))
+            .button()
+            .addClass('inline-button')
+            .click(finished)
+            .appendTo(originals.controlElement);
     }
 
     function addNewMeasurement() {
@@ -149,7 +169,7 @@
     }
 
     window.onload = function() {
-        $('#submit_new_measurement').click(addNewMeasurement);
+        $('#submit_new_measurement').button().click(addNewMeasurement);
         bindInputsToKeyHandler('.measurement_new_entry', addNewMeasurement);
         sendConfigRequest();
     };

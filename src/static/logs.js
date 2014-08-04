@@ -81,18 +81,20 @@
                     .fail(function(json) { alert("Couldn't edit entry"); });
                 };
 
-                
-                $('.id-' + id)
-                    .append('<input type="text" value="' + $originalElement.html() + '" class="logentry-inline-edit" id="inline-edit-' + id + '" />&nbsp;')
-                    .append('<a href="#" id="save-edit-' + id + '">Save</a> <a href="#" id="cancel-edit-' + id + '">Cancel</a>');
-                $('#cancel-edit-' + id).click(function() {
-                    finished();
-                    return false;
-                });
-                $('#save-edit-' + id).click(function() {
+                var $container = $('.id-' + id);
+                $('<input>').attr('type', 'text')
+                    .attr('id', 'inline-edit-' + id)
+                    .addClass('logentry-inline-edit')
+                    .val($originalElement.html())
+                    .appendTo($container);
+                $('<button>').html('Save').button().addClass('inline-button').click(function() {
                     submitEdit();
                     return false;
-                });
+                }).appendTo($container);
+                $('<button>').html('Cancel').button().addClass('inline-button').click(function() {
+                    finished();
+                    return false;
+                }).appendTo($container);
 
                 bindInputsToKeyHandler('.id-' + id, submitEdit, finished);
                 $('#inline-edit-' + id).focus().select();
@@ -105,7 +107,7 @@
 
         // Set up the control for deleting an entry
         var $editEntryElement = $('<span>').addClass('logentry-control-' + id).addClass('logentry-control').hide();
-        $('<a>').attr('href', '#').html('<img src="/static/images/delete.svg" class="icon" alt="Delete this entry" />').click(function() {
+        $('<button>').html('Delete').button().addClass('inline-button').click(function() {
             $.ajax({
                 url: '/logentries/' + id,
                 type: 'DELETE',
@@ -233,6 +235,7 @@
 
         $('#submit-link').click(doAddLogEntry);
         $('#changedate').click(showDateEntry);
+        $('button').button();
         bindInputsToKeyHandler('#control', doAddLogEntry);
 
         sendDataRequest();

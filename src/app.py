@@ -35,7 +35,7 @@ def logs():
 def settings():
     return render_template('settings.html',
             title='Settings',
-            libraries=['jquery'],
+            libraries=['jquery','jquery-ui'],
             stylesheet=url_for('static', filename='settings.css'),
             script=url_for('static', filename='settings.js'))
 

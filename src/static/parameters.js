@@ -185,7 +185,7 @@
                 buttonImageOnly: true})
             .datepicker("setDate", new Date());
 
-        $('<a>').attr('href', '#').css('margin-left','0.5em').html('save').click(function() {
+        $('<button>').html('save').button().addClass('inline-button').click(function() {
             submitEntry();
             return false;
         }).appendTo($entryContainer);

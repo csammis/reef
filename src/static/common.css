@@ -22,6 +22,22 @@ body {
     height:16px;
 }
 
+/* Override font size choice for jquery-ui widget */
+.ui-widget {
+    font-size:0.75em;
+}
+
+/* .inline-button brings the vertical sizing of jquery-ui buttons under control */
+.inline-button {
+    margin-top:0em;
+    margin-bottom:0em;
+}
+
+.inline-button .ui-button-text {
+    padding-top:0em;
+    padding-bottom:0em;
+}
+
 /* Indicates hovering over an editable field */
 .entry-hover {
     background:lightyellow;
