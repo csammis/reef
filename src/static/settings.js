@@ -20,8 +20,8 @@
     function buildMeasurementType(config) {
         var $row = $('<tr>').addClass('data').addClass('measurement-type-id-' + config.id)
             .hover(
-                    function() { $(this).addClass('entry-hover'); /*$('.measurement-type-' + config.id).show();*/ },
-                    function() { $(this).removeClass('entry-hover'); /*$('.measurement-type-' + config.id).hide();*/ }
+                    function() { $(this).addClass('entry-hover'); },
+                    function() { $(this).removeClass('entry-hover'); }
                 );
 
         $('<td>').addClass(config.id + '-label').html(config.label).appendTo($row);
@@ -120,11 +120,23 @@
         };
 
         originals.labelElement.empty()
-            .append('<input type="text" value="' + originals.label + '" class="inline-edit" id="inline-edit-label-' + id + '" />');
+            .append(
+                    $('<input>').attr('type', 'text')
+                        .attr('id', 'inline-edit-label-' + id)
+                        .addClass('inline-edit')
+                        .val(originals.label));
         originals.unitsElement.empty()
-            .append('<input type="text" value="' + originals.units + '" class="inline-edit" id="inline-edit-units-' + id + '" />');
+            .append(
+                    $('<input>').attr('type', 'text')
+                        .attr('id', 'inline-edit-units-' + id)
+                        .addClass('inline-edit')
+                        .val(originals.units));
         originals.rangeElement.empty()
-            .append('<input type="text" value="' + originals.range + '" class="inline-edit" id="inline-edit-range-' + id + '" />');
+            .append(
+                    $('<input>').attr('type', 'text')
+                        .attr('id', 'inline-edit-range-' + id)
+                        .addClass('inline-edit')
+                        .val(originals.range));
 
         bindInputsToKeyHandler('.measurement-type-id-' + id, submitEdit, finished);
         $('#inline-edit-label-' + id).focus().select();

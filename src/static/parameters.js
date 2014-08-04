@@ -48,7 +48,9 @@
             var label = configs[mt].label;
             var $graphs = $('#graphs');
             $('<h3>').html(label).appendTo($graphs);
-            $('<div id="graph-' + mt + '">').addClass('graphdisplay').appendTo($graphs);
+            $('<div>').attr('id', 'graph-' + mt)
+                .addClass('graphdisplay')
+                .appendTo($graphs);
 
             svgs[mt] = d3.select('#graph-' + mt).append('svg:svg')
                 .attr('width', WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
@@ -60,6 +62,7 @@
             svgs[mt].append('g')
                 .attr('class', 'xAxis')
                 .attr('transform', 'translate(0,' + (HEIGHT - VERTICAL_PADDING) + ')');
+
             svgs[mt].append('g')
                 .attr('class', 'yAxis')
                 .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)');
@@ -143,7 +146,11 @@
         }
         $('<h4>').html('New entry').appendTo($entryContainer);
         $('<span>').addClass('entry-units').html(entryLabel + ':&nbsp;').appendTo($entryContainer);
-        $('<span>').html('<input type="text" class="parameter-entry" id="parameter-entry-' + mt + '" /> ').appendTo($entryContainer);
+        $('<span>').append(
+                $('<input>').attr('type', 'text')
+                    .addClass('parameter-entry')
+                    .attr('id', 'parameter-entry-' + mt))
+            .appendTo($entryContainer);
 
         function submitEntry() {
             var $input = $('#parameter-entry-' + mt);
@@ -177,20 +184,24 @@
             .fail(function(data) { alert(data.message); });
         };
         $('<span>').addClass('entry-units').html('<br />Measured:&nbsp;').appendTo($entryContainer);
-        $('<input type="text" class="date-entry" id="entry-time-' + mt + '">').appendTo($entryContainer).datepicker({
+        $('<input>').addClass('date-entry')
+            .attr('type', 'text')
+            .attr('id', 'entry-time-' + mt)
+            .datepicker({
                 showOtherMonths: true,
                 selectOtherMonths: true,
                 showOn: 'both',
                 buttonImage: '/static/images/calendar.svg',
                 buttonImageOnly: true})
-            .datepicker("setDate", new Date());
+            .datepicker("setDate", new Date())
+            .appendTo($entryContainer);
 
-        $('<button>').html('save').button().addClass('inline-button').click(function() {
+        $('<button>').html('Save').button().addClass('inline-button').click(function() {
             submitEntry();
             return false;
         }).appendTo($entryContainer);
 
-        $('<div style="clear:both;">').appendTo($('#graphs'));
+        $('<div>').css('clear','both').appendTo($('#graphs'));
 
         bindInputsToKeyHandler('.entry-' + mt, submitEntry);
     }
