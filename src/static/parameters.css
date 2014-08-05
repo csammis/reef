@@ -27,12 +27,12 @@ h4 {
     shape-rendering:crispEdges;
 }
 
-.xAxis text, .yAxis text {
+.xAxis text, .yAxis0 text {
     font-family:sans-serif;
     font-size:11px;
 }
 
-.yAxis path, .yAxis line {
+.yAxis0 path, .yAxis0 line {
     fill:none;
     stroke:black;
     shape-rendering:crispEdges;
