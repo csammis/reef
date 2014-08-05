@@ -23,7 +23,8 @@ class ConfigurationResource(restful.Resource):
                 abort(400, message="Required field 'label' cannot be blank")
 
             config = models.MeasurementType(args['label'], units = args['units'], acceptable_range = args['acceptable_range[]'])
-            return jsonify(measurement_type_id = config_manager.add(config))
+            config_manager.add(config)
+            return jsonify(measurement_type = config)
 
 
 class ConfigurationSingleResource(restful.Resource):
