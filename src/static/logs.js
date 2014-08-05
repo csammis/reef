@@ -49,10 +49,10 @@
         var id = logentry.id;
 
         // Create a container for the entry and associated controls
-        var $entryElement = $('<p>').addClass('logentry-entry').addClass('id-' + id)
+        var $entryElement = $('<p>').attr('id', 'id-' + id).addClass('logentry-entry')
             .hover(
-                    function() { $('.logentry-control-' + id).show(); },
-                    function() { $('.logentry-control-' + id).hide(); }
+                    function() { $('#logentry-control-' + id).show(); },
+                    function() { $('#logentry-control-' + id).hide(); }
                   );
         
         var $entrySpan = $('<span>').addClass('entry-group').appendTo($entryElement);
@@ -81,7 +81,7 @@
                     .fail(function(json) { alert("Couldn't edit entry"); });
                 };
 
-                var $container = $('.id-' + id);
+                var $container = $('#id-' + id);
                 $('<input>').attr('type', 'text')
                     .attr('id', 'inline-edit-' + id)
                     .addClass('logentry-inline-edit')
@@ -96,7 +96,7 @@
                     return false;
                 }).appendTo($container);
 
-                bindInputsToKeyHandler('.id-' + id, submitEdit, finished);
+                bindInputsToKeyHandler('#id-' + id, submitEdit, finished);
                 $('#inline-edit-' + id).focus().select();
             })
             .hover(
@@ -106,7 +106,7 @@
             .appendTo($entrySpan);
 
         // Set up the control for deleting an entry
-        var $editEntryElement = $('<span>').addClass('logentry-control-' + id).addClass('logentry-control').hide();
+        var $editEntryElement = $('<span>').attr('id', 'logentry-control-' + id).addClass('logentry-control').hide();
         $('<button>').html('Delete').button().addClass('inline-button').click(function() {
             $.ajax({
                 url: '/logentries/' + id,
@@ -133,7 +133,7 @@
     };
 
     function removeLogEntry(id) {
-        var $target = $('.id-' + id).first();
+        var $target = $('#id-' + id).first();
         var $parent = $target.parent();
         var $elementToRemove;
         if ($parent.children('p').length == 1) {
