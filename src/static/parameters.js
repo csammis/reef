@@ -138,7 +138,9 @@
     }
     
     function buildControlsForMeasurementType(mt) {
-        var $entryContainer = $('<div>').addClass('entry-' + mt).addClass('graphcontrol').appendTo($('#graphs'));
+        var $entryContainer = $('<div>').attr('id', 'entry-' + mt)
+            .addClass('graphcontrol')
+            .appendTo($('#graphs'));
 
         var entryLabel = configs[mt].units;
         if (entryLabel == '') {
@@ -203,7 +205,7 @@
 
         $('<div>').css('clear','both').appendTo($('#graphs'));
 
-        bindInputsToKeyHandler('.entry-' + mt, submitEntry);
+        bindInputsToKeyHandler('#entry-' + mt, submitEntry);
     }
 
     function renderDatasetForMeasurementTypeOverTime(mt) {
