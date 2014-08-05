@@ -18,22 +18,22 @@
     };
 
     function buildMeasurementType(config) {
-        var $row = $('<tr>').addClass('data').addClass('measurement-type-id-' + config.id)
+        var $row = $('<tr>').addClass('data').attr('id', 'measurement-type-id-' + config.id)
             .hover(
                     function() { $(this).addClass('entry-hover'); },
                     function() { $(this).removeClass('entry-hover'); }
                 );
 
-        $('<td>').addClass(config.id + '-label').html(config.label).appendTo($row);
-        $('<td>').addClass(config.id + '-units').html(config.units).appendTo($row);
+        $('<td>').attr('id', 'label-' + config.id).html(config.label).appendTo($row);
+        $('<td>').attr('id', 'units-' + config.id).html(config.units).appendTo($row);
 
         var range_html = '';
         if (config.acceptable_range !== null && config.acceptable_range !== undefined) {
             range_html = Math.min(config.acceptable_range[0], config.acceptable_range[1]) + ' - ' + Math.max(config.acceptable_range[0], config.acceptable_range[1]);
         }
-        $('<td>').addClass(config.id + '-range').html(range_html).appendTo($row);
+        $('<td>').attr('id', 'range-' + config.id).html(range_html).appendTo($row);
 
-        var $control = $('<span>').addClass('measurement-type-' + config.id);//.hide();
+        var $control = $('<span>').attr('id', 'measurement-type-' + config.id);
         $('<button>').append(
                 $('<img>').addClass('icon').attr('src','/static/images/edit.svg'))
             .button()
@@ -59,7 +59,7 @@
             })
             .appendTo($control);
 
-        $('<td>').addClass(config.id + '-control').append($control).appendTo($row);
+        $('<td>').attr('id', 'control-' + config.id).append($control).appendTo($row);
 
         return $row;
     };
@@ -86,15 +86,15 @@
 
     function onEditMeasurementType(id) {
         var originals = {
-            labelElement: $('.' + id + '-label'),
-            label: $('.' + id + '-label').html(),
-            unitsElement: $('.' + id + '-units'),
-            units: $('.' + id + '-units').html(),
-            rangeElement: $('.' + id + '-range'),
-            range: $('.' + id + '-range').html(),
-            controlElement: $('.' + id + '-control'),
-            controlSpan: $('.measurement-type-' + id)
+            labelElement: $('#label-' + id),
+            unitsElement: $('#units-' + id),
+            rangeElement: $('#range-' + id),
+            controlElement: $('#control-' + id),
+            controlSpan: $('#measurement-type-' + id)
         };
+        originals['label'] = originals.labelElement.html();
+        originals['units'] = originals.unitsElement.html();
+        originals['range'] = originals.rangeElement.html();
 
         var finished = function() {
             originals.labelElement.empty().html(originals.label);
@@ -138,7 +138,7 @@
                         .addClass('inline-edit')
                         .val(originals.range));
 
-        bindInputsToKeyHandler('.measurement-type-id-' + id, submitEdit, finished);
+        bindInputsToKeyHandler('#measurement-type-id-' + id, submitEdit, finished);
         $('#inline-edit-label-' + id).focus().select();
 
         originals.controlSpan.detach();
@@ -166,7 +166,7 @@
             dataType: 'json',
             data: config})
         .done(function(json) {
-            buildMeasurementType(config)
+            buildMeasurementType(json.measurement_type)
                 .hide()
                 .appendTo($('#measurements_grid'))
                 .fadeIn();
