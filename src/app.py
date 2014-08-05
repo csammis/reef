@@ -19,10 +19,6 @@ def parameters():
             stylesheet=url_for('static', filename='parameters.css'),
             script=url_for('static', filename='parameters.js'))
 
-@app.route('/parameters/add/')
-def add_parameters():
-    return render_template('add_parameters.html')
-
 @app.route('/logs/')
 def logs():
     return render_template('logs.html',
