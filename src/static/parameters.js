@@ -102,19 +102,17 @@
         return svgs[mt];
     }
 
-    function initializeNewDataset(yAxes) {
+    function initializeNewDataset(from) {
         var dataset = {
             data: new Array(),
             xScale: d3.time.scale().range([HORIZONTAL_PADDING, WIDTH - HORIZONTAL_PADDING]),
-            yScale: new Array()
+            yScale: new Array(),
+            acceptable_range: new Array()
         };
 
-        if (yAxes === undefined) {
-            yAxes = 1;
-        }
-
-        for (var i = 0; i < yAxes; i++) {
+        for (var i = 0; i < from.length; i++) {
             dataset.yScale.push(d3.scale.linear().range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING]));
+            dataset.acceptable_range.push(configs[from[i]].acceptable_range);
         }
 
         return dataset;
@@ -127,7 +125,7 @@
         for (var i = 0; i < full_dataset.length; i++) {
             var d = full_dataset[i];
             if (dataSplits[d.measurement_type_id] === undefined) {
-                dataSplits[d.measurement_type_id] = initializeNewDataset();
+                dataSplits[d.measurement_type_id] = initializeNewDataset([d.measurement_type_id]);
                 dataSplits[d.measurement_type_id].data.push(new Array());
             }
             dataSplits[d.measurement_type_id].data[0].push(full_dataset[i]);
@@ -137,7 +135,8 @@
         for (var c = 0; c < configIDs.length; c++) {
             var mt = configs[configIDs[c]].id;
             if (dataSplits[mt] === undefined) {
-                dataSplits[mt] = initializeNewDataset();
+                dataSplits[mt] = initializeNewDataset(new Array(mt));
+                dataSplits[mt].acceptable_range.push(configs[mt].acceptable_range);
             }
             renderDatasetForMeasurementTypeOverTime(mt);
         }
@@ -221,15 +220,15 @@
         }
         $select.change(function() {
             var svg = getSvgForParameter(mt);
-            var acceptable_range = configs[mt].acceptable_range;
-            var restoreOriginal = $(this).val() == -1;
             if ($(this).val() == -1) {
-                renderDatasetOverTime(svg, dataSplits[mt], acceptable_range);
+                renderDatasetOverTime(svg, dataSplits[mt]);
             } else {
-                newdataset = initializeNewDataset(2);
+                newdataset = initializeNewDataset([mt, $(this).val()]);
+
                 newdataset.data[0] = dataSplits[mt].data[0];
                 newdataset.data[1] = dataSplits[$(this).val()].data[0];
-                renderDatasetOverTime(svg, newdataset, acceptable_range);
+                
+                renderDatasetOverTime(svg, newdataset);
             }
         });
 
@@ -239,10 +238,10 @@
     }
 
     function renderDatasetForMeasurementTypeOverTime(mt) {
-        renderDatasetOverTime(getSvgForParameter(mt), dataSplits[mt], configs[mt].acceptable_range);
+        renderDatasetOverTime(getSvgForParameter(mt), dataSplits[mt]);
     }
 
-    function renderDatasetOverTime(svg, dataset, acceptable_range) {
+    function renderDatasetOverTime(svg, dataset) {
         function xPos(d) { return timeFormat.parse(d.measurement_time); };
         function yPos(d) { return d.value; };
 
@@ -286,9 +285,10 @@
             line.transition()
                 .attr('d', lineFunction(dataset.data[i]));
 
-            if (acceptable_range) {
-                var v0 = Math.min(acceptable_range[0], acceptable_range[1]);
-                var v1 = Math.max(acceptable_range[0], acceptable_range[1]);
+            if (dataset.acceptable_range[i]) {
+                var range = dataset.acceptable_range[i];
+                var v0 = Math.min(range[0], range[1]);
+                var v1 = Math.max(range[0], range[1]);
                 svg.select('.acceptable_range').transition()
                     .attr('y', dataset.yScale[i](v1))
                     .attr('height', dataset.yScale[i](v0) - dataset.yScale[i](v1));
