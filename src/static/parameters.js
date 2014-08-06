@@ -258,11 +258,7 @@
         svg.attr('dataset-count', dataset.data.length);
 
         // Set time domain across all sets in the dataset
-        var timeDomain = new Array();
-        for (var i = 0; i < dataset.data.length; i++) {
-            timeDomain = timeDomain.concat(dataset.data[i]);
-        }
-        dataset.xScale.domain(d3.extent(timeDomain, xPos));
+        dataset.xScale.domain(d3.extent(d3.merge(dataset.data), xPos));
 
         for (var i = 0; i < dataset.data.length; i++) {
             dataset.yScale[i].domain(d3.extent(dataset.data[i], yPos)).nice(2);
