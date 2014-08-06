@@ -95,12 +95,7 @@
                     .attr('height', ds.yScale[0](v0) - ds.yScale[0](v1))
                     .attr('class', 'acceptable_range');
             }
-
-            // Point connecting path element
-            svgs[mt].append('path')
-                .attr('stroke', 'black')
-                .attr('class', 'line y0');
-
+            
             buildControlsForMeasurementType(mt);
         }
 
@@ -214,56 +209,114 @@
             return false;
         }).appendTo($entryContainer);
 
+        $('<h4>').html('Plot against').appendTo($entryContainer);
+        var $select = $('<select>').attr('id', 'plot-with-' + mt).appendTo($entryContainer);
+        $('<option>').html('-- None --').val(-1).appendTo($select);
+        for (var i = 0; i < configIDs.length; i++) {
+            if (configIDs[i] == mt) {
+                continue;
+            }
+
+            $('<option>').html(configs[configIDs[i]].label).val(configs[configIDs[i]].id).appendTo($select);
+        }
+        $select.change(function() {
+            var svg = getSvgForParameter(mt);
+            var acceptable_range = configs[mt].acceptable_range;
+            var restoreOriginal = $(this).val() == -1;
+            if ($(this).val() == -1) {
+                renderDatasetOverTime(svg, dataSplits[mt], acceptable_range);
+            } else {
+                newdataset = initializeNewDataset(2);
+                newdataset.data[0] = dataSplits[mt].data[0];
+                newdataset.data[1] = dataSplits[$(this).val()].data[0];
+                renderDatasetOverTime(svg, newdataset, acceptable_range);
+            }
+        });
+
         $('<div>').css('clear','both').appendTo($('#graphs'));
 
         bindInputsToKeyHandler('#entry-' + mt, submitEntry);
     }
 
     function renderDatasetForMeasurementTypeOverTime(mt) {
+        renderDatasetOverTime(getSvgForParameter(mt), dataSplits[mt], configs[mt].acceptable_range);
+    }
+
+    function renderDatasetOverTime(svg, dataset, acceptable_range) {
         function xPos(d) { return timeFormat.parse(d.measurement_time); };
         function yPos(d) { return d.value; };
 
-        var ds = dataSplits[mt];
-        ds.xScale.domain(d3.extent(ds.data[0], xPos));
-        ds.yScale[0].domain(d3.extent(ds.data[0], yPos)).nice(2);
-
-        var s = getSvgForParameter(mt);
-
-        // Draw connecting lines between measurements of each type
-        var lineFunction = d3.svg.line()
-            .x(function(d) { return ds.xScale(timeFormat.parse(d.measurement_time)); })
-            .y(function(d) { return ds.yScale[0](d.value); })
-            .interpolate('linear');
-        
-        var points = s.selectAll('circle.y0').data(ds.data[0]);
-        var line = s.select('path.line.y0').data(ds.data[0]);
-        
-        points.transition()
-            .attr('cx', function(d) { return ds.xScale(xPos(d)); })
-            .attr('cy', function(d) { return ds.yScale[0](yPos(d)); });
-        line.transition()
-            .attr('d', lineFunction(ds.data[0]));
-
-        if (configs[mt].acceptable_range) {
-            var v0 = Math.min(configs[mt].acceptable_range[0], configs[mt].acceptable_range[1]);
-            var v1 = Math.max(configs[mt].acceptable_range[0], configs[mt].acceptable_range[1]);
-            s.select('.acceptable_range').transition()
-                .attr('y', ds.yScale[0](v1))
-                .attr('height', ds.yScale[0](v0) - ds.yScale[0](v1));
+        if (svg.attr('dataset-count') !== undefined) {
+            var count = svg.attr('dataset-count');
+            // Bring it down to just dataset 0
+            for (var i = count - 1; i > 0; i--) {
+                svg.selectAll('circle.y' + i).remove();
+                svg.selectAll('path.line.y' + i).remove();
+            }
         }
 
-        points.enter()
-           .append('circle')
-           .attr('class', 'y0')
-           .attr('cx', function(d) { return ds.xScale(xPos(d)); })
-           .attr('cy', function(d) { return ds.yScale[0](yPos(d)); })
-           .attr('r', 4);
+        svg.attr('dataset-count', dataset.data.length);
+
+        // Set time domain across all sets in the dataset
+        var timeDomain = new Array();
+        for (var i = 0; i < dataset.data.length; i++) {
+            timeDomain = timeDomain.concat(dataset.data[i]);
+        }
+        dataset.xScale.domain(d3.extent(timeDomain, xPos));
+
+        for (var i = 0; i < dataset.data.length; i++) {
+            dataset.yScale[i].domain(d3.extent(dataset.data[i], yPos)).nice(2);
+
+            // Draw connecting lines between measurements of each type
+            var lineFunction = d3.svg.line()
+                .x(function(d) { return dataset.xScale(timeFormat.parse(d.measurement_time)); })
+                .y(function(d) { return dataset.yScale[i](d.value); })
+                .interpolate('linear');
+
+            var classSelector = 'y' + i;
+            
+            var points = svg.selectAll('circle.' + classSelector).data(dataset.data[i]);
+            var line = svg.select('path.line.' + classSelector);
+            if (line.empty()) {
+                line = svg.append('path')
+                    .attr('stroke', 'black')
+                    .attr('class', 'line ' + classSelector);
+            }
+            line.data(dataset.data[i]);
+            
+            points.transition()
+                .attr('cx', function(d) { return dataset.xScale(xPos(d)); })
+                .attr('cy', function(d) { return dataset.yScale[i](yPos(d)); });
+            line.transition()
+                .attr('d', lineFunction(dataset.data[i]));
+
+            if (acceptable_range) {
+                var v0 = Math.min(acceptable_range[0], acceptable_range[1]);
+                var v1 = Math.max(acceptable_range[0], acceptable_range[1]);
+                svg.select('.acceptable_range').transition()
+                    .attr('y', dataset.yScale[i](v1))
+                    .attr('height', dataset.yScale[i](v0) - dataset.yScale[i](v1));
+            }
+
+            points.enter()
+               .append('circle')
+               .attr('class', classSelector)
+               .attr('cx', function(d) { return dataset.xScale(xPos(d)); })
+               .attr('cy', function(d) { return dataset.yScale[i](yPos(d)); })
+               .attr('r', 4);
+        }
 
         // Draw the axes
-        var xAxis = d3.svg.axis().scale(ds.xScale).orient('bottom');
-        s.selectAll('.xAxis').call(xAxis);
-        var yAxis = d3.svg.axis().scale(ds.yScale[0]).orient('left');
-        s.selectAll('.yAxis0').call(yAxis);
+        var xAxis = d3.svg.axis().scale(dataset.xScale).orient('bottom');
+        svg.selectAll('.xAxis').call(xAxis);
+        var yAxis0 = d3.svg.axis().scale(dataset.yScale[0]).orient('left');
+        svg.selectAll('.yAxis0').call(yAxis0);
+        
+        if (dataset.yScale.length > 0) {
+            // Supporting only one additional axis right now
+            var yAxis1 = d3.svg.axis().scale(dataset.yScale[1]).orient('right');
+            svg.selectAll('.yAxis1').call(yAxis1);
+        }
     }
 
     window.onload = sendConfigRequest();
