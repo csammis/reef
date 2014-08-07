@@ -16,6 +16,8 @@
     var timeFormat = d3.time.format('%Y-%m-%dT%H:%M:%S');
     var dataSplits = {};
 
+    var datasetForSvg = d3.map();
+
     function sendConfigRequest() {
         $.ajax({
             url: '/configs/measurements',
@@ -209,29 +211,32 @@
         }).appendTo($entryContainer);
 
         $('<h4>').html('Plot against').appendTo($entryContainer);
-        var $select = $('<select>').attr('id', 'plot-with-' + mt).appendTo($entryContainer);
-        $('<option>').html('-- None --').val(-1).appendTo($select);
+        var $checkboxContainer = $('<div>').addClass('.checkbox-group').appendTo($entryContainer);
         for (var i = 0; i < configIDs.length; i++) {
             if (configIDs[i] == mt) {
                 continue;
             }
 
-            $('<option>').html(configs[configIDs[i]].label).val(configs[configIDs[i]].id).appendTo($select);
+            var $span = $('<span>').addClass('plot-against').appendTo($checkboxContainer);
+            $('<input>').attr('type', 'checkbox').attr('measurement_type', configIDs[i]).change(function() {
+                var svg = getSvgForParameter(mt);
+                var existingDataset = datasetForSvg.get(svg);
+                if ($(this).is(':checked') == false) {
+                    renderDatasetOverTime(svg, dataSplits[mt]);
+                } else {
+                    var thisMeasurementType = $(this).attr('measurement_type');
+                    newdataset = initializeNewDataset([mt, thisMeasurementType]);
+
+                    newdataset.data[0] = dataSplits[mt].data[0];
+                    newdataset.data[1] = dataSplits[thisMeasurementType].data[0];
+                    
+                    renderDatasetOverTime(svg, newdataset);
+                }
+            }).appendTo($span);
+            $('<span>').html('&nbsp;' + configs[configIDs[i]].label).appendTo($span);
+            $('<br />').appendTo($checkboxContainer);
         }
-        $select.change(function() {
-            var svg = getSvgForParameter(mt);
-            if ($(this).val() == -1) {
-                renderDatasetOverTime(svg, dataSplits[mt]);
-            } else {
-                newdataset = initializeNewDataset([mt, $(this).val()]);
-
-                newdataset.data[0] = dataSplits[mt].data[0];
-                newdataset.data[1] = dataSplits[$(this).val()].data[0];
-                
-                renderDatasetOverTime(svg, newdataset);
-            }
-        });
-
+        
         $('<div>').css('clear','both').appendTo($('#graphs'));
 
         bindInputsToKeyHandler('#entry-' + mt, submitEntry);
@@ -313,6 +318,8 @@
             var yAxis1 = d3.svg.axis().scale(dataset.yScale[1]).orient('right');
             svg.selectAll('.yAxis1').call(yAxis1);
         }
+
+        datasetForSvg.set(svg, dataset);
     }
 
     window.onload = sendConfigRequest();
