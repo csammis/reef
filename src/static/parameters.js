@@ -66,7 +66,7 @@
                 .attr('transform', 'translate(0,' + (HEIGHT - VERTICAL_PADDING) + ')');
 
             svgs[mt].append('g')
-                .attr('class', 'yAxis0')
+                .attr('class', 'yAxis yAxis' + mt)
                 .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)');
 
             svgs[mt].append('text')
@@ -86,15 +86,17 @@
             }
 
             // Acceptable range coloring
-            if (configs[mt].acceptable_range) {
-                var v0 = Math.min(configs[mt].acceptable_range[0], configs[mt].acceptable_range[1]);
-                var v1 = Math.max(configs[mt].acceptable_range[0], configs[mt].acceptable_range[1]);
+            if (ds.acceptable_range.get(mt)) {
+                var range = ds.acceptable_range.get(mt);
+                var yScale = ds.yScale.get(mt);
+                var v0 = Math.min(range[0], range[1]);
+                var v1 = Math.max(range[0], range[1]);
 
                 svgs[mt].append('rect')
                     .attr('x', HORIZONTAL_PADDING)
-                    .attr('y', ds.yScale[0](v1))
+                    .attr('y', yScale(v1))
                     .attr('width', WIDTH - (HORIZONTAL_PADDING * 2))
-                    .attr('height', ds.yScale[0](v0) - ds.yScale[0](v1))
+                    .attr('height', yScale(v0) - yScale(v1))
                     .attr('class', 'acceptable_range');
             }
             
@@ -104,18 +106,27 @@
         return svgs[mt];
     }
 
-    function initializeNewDataset(from) {
+    function initializeNewDataset(primary_dataset) {
         var dataset = {
-            data: new Array(),
+            primary_key: primary_dataset,
+            data: d3.map(),
             xScale: d3.time.scale().range([HORIZONTAL_PADDING, WIDTH - HORIZONTAL_PADDING]),
-            yScale: new Array(),
-            acceptable_range: new Array()
+            yScale: d3.map(),
+            acceptable_range: d3.map(),
+            add: function(mt) {
+                this.data.set(mt, dataSplits[mt].data.get(mt));
+                this.yScale.set(mt, d3.scale.linear().range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING]));
+                this.acceptable_range.set(mt, configs[mt].acceptable_range);
+            },
+            remove: function(mt) {
+                this.data.remove(mt);
+                this.yScale.remove(mt);
+                this.acceptable_range.remove(mt);
+            }
         };
 
-        for (var i = 0; i < from.length; i++) {
-            dataset.yScale.push(d3.scale.linear().range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING]));
-            dataset.acceptable_range.push(configs[from[i]].acceptable_range);
-        }
+        dataset.yScale.set(primary_dataset, d3.scale.linear().range([HEIGHT - VERTICAL_PADDING, VERTICAL_PADDING]));
+        dataset.acceptable_range.set(primary_dataset, configs[primary_dataset].acceptable_range);
 
         return dataset;
     };
@@ -126,19 +137,19 @@
         // Split up the full dataset into measurement-specific slices
         for (var i = 0; i < full_dataset.length; i++) {
             var d = full_dataset[i];
-            if (dataSplits[d.measurement_type_id] === undefined) {
-                dataSplits[d.measurement_type_id] = initializeNewDataset([d.measurement_type_id]);
-                dataSplits[d.measurement_type_id].data.push(new Array());
+            var mt = d.measurement_type_id;
+            if (dataSplits[mt] === undefined) {
+                dataSplits[mt] = initializeNewDataset(mt);
+                dataSplits[mt].data.set(mt, new Array());
             }
-            dataSplits[d.measurement_type_id].data[0].push(full_dataset[i]);
+            dataSplits[mt].data.get(mt).push(full_dataset[i]);
         }
         
-        // Generate a graph and controls for each measurement type
+        // Generate a graph and controls for each defined measurement type
         for (var c = 0; c < configIDs.length; c++) {
             var mt = configs[configIDs[c]].id;
             if (dataSplits[mt] === undefined) {
-                dataSplits[mt] = initializeNewDataset(new Array(mt));
-                dataSplits[mt].acceptable_range.push(configs[mt].acceptable_range);
+                dataSplits[mt] = initializeNewDataset([mt]);
             }
             renderDatasetForMeasurementTypeOverTime(mt);
         }
@@ -220,18 +231,14 @@
             var $span = $('<span>').addClass('plot-against').appendTo($checkboxContainer);
             $('<input>').attr('type', 'checkbox').attr('measurement_type', configIDs[i]).change(function() {
                 var svg = getSvgForParameter(mt);
-                var existingDataset = datasetForSvg.get(svg);
+                var existingDataset = datasetForSvg.get(mt);
+                var thisMeasurementType = $(this).attr('measurement_type');
                 if ($(this).is(':checked') == false) {
-                    renderDatasetOverTime(svg, dataSplits[mt]);
+                    existingDataset.remove(thisMeasurementType);
                 } else {
-                    var thisMeasurementType = $(this).attr('measurement_type');
-                    newdataset = initializeNewDataset([mt, thisMeasurementType]);
-
-                    newdataset.data[0] = dataSplits[mt].data[0];
-                    newdataset.data[1] = dataSplits[thisMeasurementType].data[0];
-                    
-                    renderDatasetOverTime(svg, newdataset);
+                    existingDataset.add(thisMeasurementType);
                 }
+                renderDatasetOverTime(svg, existingDataset);
             }).appendTo($span);
             $('<span>').html('&nbsp;' + configs[configIDs[i]].label).appendTo($span);
             $('<br />').appendTo($checkboxContainer);
@@ -244,82 +251,81 @@
 
     function renderDatasetForMeasurementTypeOverTime(mt) {
         renderDatasetOverTime(getSvgForParameter(mt), dataSplits[mt]);
+        datasetForSvg.set(mt, dataSplits[mt]);
     }
 
     function renderDatasetOverTime(svg, dataset) {
         function xPos(d) { return timeFormat.parse(d.measurement_time); };
         function yPos(d) { return d.value; };
 
-        if (svg.attr('dataset-count') !== undefined) {
-            var count = svg.attr('dataset-count');
-            // Bring it down to just dataset 0
-            for (var i = count - 1; i > 0; i--) {
-                svg.selectAll('circle.y' + i).remove();
-                svg.selectAll('path.line.y' + i).remove();
+        // Remove previously added datapoints except the primary set for this graph
+        var current_datasets = svg.attr('current-datasets');
+        if (current_datasets) {
+            var keys = current_datasets.split(',');
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i] != dataset.primary_key) {
+                    svg.selectAll('circle.y' + keys[i]).remove();
+                    svg.selectAll('path.line.y' + keys[i]).remove();
+                }
             }
         }
-
-        svg.attr('dataset-count', dataset.data.length);
+        // Stash the list of datasets rendered onto this SVG for later cleanup
+        svg.attr('current-datasets', dataset.data.keys().join(','));
 
         // Set time domain across all sets in the dataset
-        dataset.xScale.domain(d3.extent(d3.merge(dataset.data), xPos));
+        dataset.xScale.domain(d3.extent(d3.merge(dataset.data.values()), xPos));
 
-        for (var i = 0; i < dataset.data.length; i++) {
-            dataset.yScale[i].domain(d3.extent(dataset.data[i], yPos)).nice(2);
+        dataset.data.forEach(function(key, value) {
+
+            var yScale = dataset.yScale.get(key);
+
+            yScale.domain(d3.extent(value, yPos)).nice(2);
 
             // Draw connecting lines between measurements of each type
             var lineFunction = d3.svg.line()
                 .x(function(d) { return dataset.xScale(timeFormat.parse(d.measurement_time)); })
-                .y(function(d) { return dataset.yScale[i](d.value); })
+                .y(function(d) { return yScale(d.value); })
                 .interpolate('linear');
 
-            var classSelector = 'y' + i;
+            var classSelector = 'y' + key;
             
-            var points = svg.selectAll('circle.' + classSelector).data(dataset.data[i]);
+            var points = svg.selectAll('circle.' + classSelector).data(value);
             var line = svg.select('path.line.' + classSelector);
             if (line.empty()) {
                 line = svg.append('path')
                     .attr('stroke', 'black')
                     .attr('class', 'line ' + classSelector);
             }
-            line.data(dataset.data[i]);
+            line.data(value);
             
             points.transition()
                 .attr('cx', function(d) { return dataset.xScale(xPos(d)); })
-                .attr('cy', function(d) { return dataset.yScale[i](yPos(d)); });
+                .attr('cy', function(d) { return yScale(yPos(d)); });
             line.transition()
-                .attr('d', lineFunction(dataset.data[i]));
+                .attr('d', lineFunction(value));
 
-            if (dataset.acceptable_range[i]) {
-                var range = dataset.acceptable_range[i];
+            if (dataset.acceptable_range.get(key)) {
+                var range = dataset.acceptable_range.get(key);
                 var v0 = Math.min(range[0], range[1]);
                 var v1 = Math.max(range[0], range[1]);
                 svg.select('.acceptable_range').transition()
-                    .attr('y', dataset.yScale[i](v1))
-                    .attr('height', dataset.yScale[i](v0) - dataset.yScale[i](v1));
+                    .attr('y', yScale(v1))
+                    .attr('height', yScale(v0) - yScale(v1));
             }
 
             points.enter()
                .append('circle')
                .attr('class', classSelector)
                .attr('cx', function(d) { return dataset.xScale(xPos(d)); })
-               .attr('cy', function(d) { return dataset.yScale[i](yPos(d)); })
+               .attr('cy', function(d) { return yScale(yPos(d)); })
                .attr('r', 4);
-        }
+        });
 
         // Draw the axes
         var xAxis = d3.svg.axis().scale(dataset.xScale).orient('bottom');
         svg.selectAll('.xAxis').call(xAxis);
-        var yAxis0 = d3.svg.axis().scale(dataset.yScale[0]).orient('left');
-        svg.selectAll('.yAxis0').call(yAxis0);
-        
-        if (dataset.yScale.length > 0) {
-            // Supporting only one additional axis right now
-            var yAxis1 = d3.svg.axis().scale(dataset.yScale[1]).orient('right');
-            svg.selectAll('.yAxis1').call(yAxis1);
-        }
-
-        datasetForSvg.set(svg, dataset);
+        var yAxisPrimary = d3.svg.axis().scale(dataset.yScale.get(dataset.primary_key)).orient('left');
+        svg.selectAll('.yAxis' + dataset.primary_key).call(yAxisPrimary);
     }
 
     window.onload = sendConfigRequest();
