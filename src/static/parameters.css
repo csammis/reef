@@ -45,12 +45,12 @@ h4 {
 
 .line {
     fill:none;
-    stroke-width:1;
+    stroke-width:3px;
 }
 
 .acceptable_range {
-    fill:lightgreen;
-    stroke:darkgreen;
+    fill:#daf9da;
+    stroke:#daf9da;
 }
 
 .parameter-entry {

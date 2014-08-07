@@ -9,6 +9,21 @@
             BOTTOM: 20 };
     var VERTICAL_PADDING = 20;
 
+    var COLORS = ['rgb(166,206,227)','rgb(31,120,180)',
+                  'rgb(178,223,138)','rgb(51,160,44)',
+                  'rgb(251,154,153)','rgb(227,26,28)',
+                  'rgb(253,191,111)','rgb(255,127,0)',
+                  'rgb(202,178,214)','rgb(106,61,154)',
+                  'rgb(255,255,153)','rgb(177,89,40)'];
+
+    function shadeRGBColor(color, percent) {
+        var f=color.split(","),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=parseInt(f[0].slice(4)),G=parseInt(f[1]),B=parseInt(f[2]);
+        return "rgb("+(Math.round((t-R)*p)+R)+","+(Math.round((t-G)*p)+G)+","+(Math.round((t-B)*p)+B)+")";
+    }
+
+
+    var color_scale = d3.scale.ordinal().range(COLORS);
+
     var svgs = {};
     var configs = {};
     // configIDs is used to support iterating over the configurations as they're returned from the server as opposed to some arbitrary for (.. in ..) order
@@ -32,6 +47,7 @@
             configs[config_id] = json.configs[i];
             configIDs.push(config_id);
         }
+        color_scale.domain(configIDs);
         configs['length'] = json.configs.length;
         
         $.ajax({
@@ -93,9 +109,9 @@
                 var v1 = Math.max(range[0], range[1]);
 
                 svgs[mt].append('rect')
-                    .attr('x', HORIZONTAL_PADDING)
+                    .attr('x', HORIZONTAL_PADDING + 5)
                     .attr('y', yScale(v1))
-                    .attr('width', WIDTH - (HORIZONTAL_PADDING * 2))
+                    .attr('width', WIDTH - (HORIZONTAL_PADDING * 2) - 5)
                     .attr('height', yScale(v0) - yScale(v1))
                     .attr('class', 'acceptable_range');
             }
@@ -285,7 +301,7 @@
             var lineFunction = d3.svg.line()
                 .x(function(d) { return dataset.xScale(timeFormat.parse(d.measurement_time)); })
                 .y(function(d) { return yScale(d.value); })
-                .interpolate('linear');
+                .interpolate('monotone');
 
             var classSelector = 'y' + key;
             
@@ -293,10 +309,10 @@
             var line = svg.select('path.line.' + classSelector);
             if (line.empty()) {
                 line = svg.append('path')
-                    .attr('stroke', 'black')
-                    .attr('class', 'line ' + classSelector);
+                        .attr('class', 'line ' + classSelector);
             }
-            line.data(value);
+            line.data(value)
+                .attr('stroke', function(d) { return color_scale(d.measurement_type_id); });
             
             points.transition()
                 .attr('cx', function(d) { return dataset.xScale(xPos(d)); })
@@ -318,6 +334,7 @@
                .attr('class', classSelector)
                .attr('cx', function(d) { return dataset.xScale(xPos(d)); })
                .attr('cy', function(d) { return yScale(yPos(d)); })
+               .attr('fill', function(d) { return shadeRGBColor(color_scale(d.measurement_type_id), -0.2); })
                .attr('r', 4);
         });
 
