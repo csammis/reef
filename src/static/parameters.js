@@ -82,13 +82,13 @@
                 .attr('transform', 'translate(0,' + (HEIGHT - VERTICAL_PADDING) + ')');
 
             svgs[mt].append('g')
-                .attr('class', 'yAxis yAxis' + mt)
+                .attr('class', 'yAxis yAxisPrimary')
                 .attr('transform', 'translate(' + HORIZONTAL_PADDING + ',0)');
 
             svgs[mt].append('text')
                 .attr('x', (WIDTH + MARGIN.LEFT) / 2)
                 .attr('y', HEIGHT + MARGIN.BOTTOM)
-                .attr('class', 'axis_label')
+                .attr('class', 'axis_label xAxisLabel')
                 .text('Measurement date');
 
             if (configs[mt].units) {
@@ -97,7 +97,7 @@
                     .attr('y', 0 - MARGIN.LEFT)
                     .attr('x', 0 - (HEIGHT / 2))
                     .attr('dy', '1em')
-                    .attr('class', 'axis_label')
+                    .attr('class', 'axis_label yAxisLabel yAxisLabelPrimary')
                     .text(configs[mt].units);
             }
 
@@ -320,15 +320,6 @@
             line.transition()
                 .attr('d', lineFunction(value));
 
-            if (dataset.acceptable_range.get(key)) {
-                var range = dataset.acceptable_range.get(key);
-                var v0 = Math.min(range[0], range[1]);
-                var v1 = Math.max(range[0], range[1]);
-                svg.select('.acceptable_range').transition()
-                    .attr('y', yScale(v1))
-                    .attr('height', yScale(v0) - yScale(v1));
-            }
-
             points.enter()
                .append('circle')
                .attr('class', classSelector)
@@ -341,8 +332,46 @@
         // Draw the axes
         var xAxis = d3.svg.axis().scale(dataset.xScale).orient('bottom');
         svg.selectAll('.xAxis').call(xAxis);
-        var yAxisPrimary = d3.svg.axis().scale(dataset.yScale.get(dataset.primary_key)).orient('left');
-        svg.selectAll('.yAxis' + dataset.primary_key).call(yAxisPrimary);
+
+        if (dataset.data.size() <= 2) {
+            var yAxisPrimary = d3.svg.axis().scale(dataset.yScale.get(dataset.primary_key)).orient('left');
+            svg.selectAll('.yAxisPrimary').call(yAxisPrimary).style('display','inline');
+            svg.selectAll('.yAxisLabelPrimary').style('display', 'inline');
+
+            if (dataset.data.size() == 2) {
+                var secondaryKey = dataset.data.keys()[0] == dataset.primary_key ? dataset.data.keys()[1] : dataset.data.keys()[0];
+
+                var yAxisSecondary = d3.svg.axis().scale(dataset.yScale.get(secondaryKey)).orient('right');
+                var axisElements = svg.selectAll('.yAxisSecondary');
+                if (axisElements.empty()) {
+                    axisElements = svg.append('g')
+                        .attr('class', 'yAxis yAxisSecondary')
+                        .attr('transform', 'translate(' + (WIDTH - HORIZONTAL_PADDING) + ',0)');
+                }
+                axisElements.call(yAxisSecondary).style('display', 'inline');
+            } else {
+                svg.selectAll('.yAxisSecondary, .yAxisLabelSecondary').style('display', 'none');
+            }
+        } else if (dataset.data.size() > 2 || dataset.data.empty()) {
+            svg.selectAll('.yAxisPrimary, .yAxisLabelPrimary, .yAxisSecondary, .yAxisLabelSecondary').style('display', 'none');
+        }
+
+        // Show/hide acceptable range
+        if (dataset.acceptable_range.get(dataset.primary_key)) {
+            if (dataset.data.size() > 1) {
+                svg.select('.acceptable_range').style('display', 'none');
+            } else {
+                var range = dataset.acceptable_range.get(dataset.primary_key);
+                var yScale = dataset.yScale.get(dataset.primary_key);
+                var v0 = Math.min(range[0], range[1]);
+                var v1 = Math.max(range[0], range[1]);
+                svg.select('.acceptable_range').transition()
+                    .attr('y', yScale(v1))
+                    .attr('height', yScale(v0) - yScale(v1))
+                    .style('display', 'inline');
+            }
+        }
+
     }
 
     window.onload = sendConfigRequest();
