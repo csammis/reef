@@ -29,8 +29,10 @@ class EventManager(object):
             return None
         return query.first()
 
-    def get_measurements(self, parameters = None, timerange = {}):
+    def get_measurements(self, tank_id = None, parameters = None, timerange = {}):
         query = DBSession.query(Measurement)
+        if tank_id is not None:
+            query = query.filter(Measurement.tank_id == tank_id)
         if parameters is not None:
             query = query.filter(Measurement.measurement_type_id.in_(parameters))
         if 'start' in timerange:
@@ -39,8 +41,10 @@ class EventManager(object):
             query = query.filter(Measurement.measurement_time <= timerange['end'])
         return query.order_by(Measurement.measurement_time.asc()).all()
 
-    def get_log_entries(self, timerange = {}):
+    def get_log_entries(self, tank_id = None, timerange = {}):
         query = DBSession.query(LogEntry)
+        if tank_id is not None:
+            query = query.filter(LogEntry.tank_id == tank_id)
         if 'start' in timerange:
             query = query.filter(LogEntry.entry_time >= timerange['start'])
         if 'end' in timerange:

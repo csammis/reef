@@ -1,5 +1,6 @@
 from models import DBSession
 from models.MeasurementType import MeasurementType
+from models.Tank import Tank
 
 class ConfigManager(object):
 
@@ -31,3 +32,17 @@ class ConfigManager(object):
         updateDict[MeasurementType.acceptable_range_high] = max(acceptable_range) if acceptable_range is not None else None
 
         DBSession.query(MeasurementType).filter(MeasurementType.id == measurement_type_id).update(updateDict)
+
+    def get_tank(self, tank_id):
+        query = DBSession.query(Tank).filter(Tank.id == tank_id)
+        if query.count() == 0:
+            return None
+        return query.first()
+
+    def get_tanks(self):
+        query = DBSession.query(Tank)
+        return query.order_by(Tank.name.asc()).all()
+
+    def update_tank(self, tank_id, name):
+        updateDict = {Tank.name: name}
+        DBSession.query(Tank).filter(Tank.id == tank_id).update(updateDict)

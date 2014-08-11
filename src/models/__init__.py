@@ -16,3 +16,4 @@ from models.LogEntry import LogEntry
 from models.EventManager import EventManager
 from models.MeasurementType import MeasurementType
 from models.ConfigManager import ConfigManager
+from models.Tank import Tank

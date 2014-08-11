@@ -9,6 +9,7 @@ class TestConfigManager(object):
 
     def setup(self):
         models.DBSession.query(models.MeasurementType).delete()
+        models.DBSession.query(models.Tank).delete()
 
     def test_add_measurement_type(self):
         m = models.MeasurementType('Test')
@@ -71,4 +72,68 @@ class TestConfigManager(object):
 
         TestConfigManager._cm.delete(l[0])
         l2 = TestConfigManager._cm.get_measurement_types()
+        assert len(l2) == 2
+
+    def test_add_tank(self):
+        t = models.Tank('Test')
+        TestConfigManager._cm.add(t)
+
+        l = TestConfigManager._cm.get_tanks()
+        assert len(l) == 1
+        assert type(l[0]) is models.Tank
+        assert l[0].name == 'Test'
+
+    @classmethod
+    def insert_tanks(cls):
+        TestConfigManager._cm.add(models.Tank('Tank 3'))
+        TestConfigManager._cm.add(models.Tank('Tank 1'))
+        TestConfigManager._cm.add(models.Tank('Tank 2'))
+
+    def test_get_tanks(self):
+        TestConfigManager.insert_tanks()
+
+        l = TestConfigManager._cm.get_tanks()
+        assert len(l) == 3
+        assert l[0].name < l[1].name and l[1].name < l[2].name
+
+    def test_get_tank(self):
+        TestConfigManager.insert_tanks()
+
+        l = TestConfigManager._cm.get_tanks()
+
+        t = TestConfigManager._cm.get_tank(l[0].id)
+        assert t is not None
+        assert t.id == l[0].id
+        assert t.name == l[0].name
+
+    def test_get_tank_not_found(self):
+        assert TestConfigManager._cm.get_tank(0) is None
+
+    def test_update_tank(self):
+        TestConfigManager.insert_tanks()
+
+        l = TestConfigManager._cm.get_tanks()
+        assert l[0].name == 'Tank 1'
+
+        TestConfigManager._cm.update_tank(l[0].id, 'Update Test')
+        t = TestConfigManager._cm.get_tank(l[0].id)
+        assert t.name == 'Update Test'
+
+    def test_insert_tank_fails_duplicate_name(self):
+        TestConfigManager._cm.add(models.Tank('Test Name'))
+        try:
+            TestConfigManager._cm.add(models.Tank('Test Name'))
+            assert False
+        except:
+            models.DBSession.rollback()
+            assert True
+
+    def test_delete_tank(self):
+        TestConfigManager.insert_tanks()
+
+        l = TestConfigManager._cm.get_tanks()
+        assert len(l) == 3
+
+        TestConfigManager._cm.delete(l[0])
+        l2 = TestConfigManager._cm.get_tanks()
         assert len(l2) == 2

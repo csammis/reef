@@ -18,12 +18,17 @@ class TestEventManager(object):
 
         cls._mtypes = {'calcium': mt1.id, 'phosphate': mt2.id, 'KH': mt3.id}
 
+        tank = models.Tank('DefaultTank')
+        cls._cm.add(tank)
+        cls._tank = tank
+
     def setup(self):
         models.DBSession.query(models.Measurement).delete()
         models.DBSession.query(models.LogEntry).delete()
+        models.DBSession.query(models.Tank).filter(models.Tank.name != 'DefaultTank').delete()
 
     def test_add_measurement_implicit_time(self):
-        m = models.Measurement(TestEventManager._mtypes['calcium'])
+        m = models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'])
         m.value = 472
         TestEventManager._em.add(m)
 
@@ -34,7 +39,7 @@ class TestEventManager(object):
         assert l[0].measurement_time == m.measurement_time
 
     def test_add_measurement_explicit_time(self):
-        m = models.Measurement(TestEventManager._mtypes['calcium'])
+        m = models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'])
         m.value = 472
         m.measurement_time = datetime.datetime.fromtimestamp(123456)
         TestEventManager._em.add(m)
@@ -46,9 +51,21 @@ class TestEventManager(object):
     @classmethod
     def insert_measurements(cls):
         dt = datetime.datetime
-        TestEventManager._em.add(models.Measurement(cls._mtypes['calcium'], dt.fromtimestamp(123456), 472))
-        TestEventManager._em.add(models.Measurement(cls._mtypes['phosphate'], dt.fromtimestamp(433563), 0.00))
-        TestEventManager._em.add(models.Measurement(cls._mtypes['KH'], dt.fromtimestamp(32242), 7.33))
+        TestEventManager._em.add(models.Measurement(cls._tank.id, cls._mtypes['calcium'], dt.fromtimestamp(123456), 472))
+        TestEventManager._em.add(models.Measurement(cls._tank.id, cls._mtypes['phosphate'], dt.fromtimestamp(433563), 0.00))
+        TestEventManager._em.add(models.Measurement(cls._tank.id, cls._mtypes['KH'], dt.fromtimestamp(32242), 7.33))
+
+    @classmethod
+    def insert_measurements_for_tank(cls, tankname):
+        dt = datetime.datetime
+        tank = models.Tank(tankname)
+        cls._cm.add(tank)
+
+        TestEventManager._em.add(models.Measurement(tank.id, cls._mtypes['calcium'], dt.fromtimestamp(1234256), 242))
+        TestEventManager._em.add(models.Measurement(tank.id, cls._mtypes['phosphate'], dt.fromtimestamp(4363563), 0.40))
+        TestEventManager._em.add(models.Measurement(tank.id, cls._mtypes['KH'], dt.fromtimestamp(322452), 8.33))
+
+        return tank.id
 
     def test_get_measurements_all(self):
         TestEventManager.insert_measurements()
@@ -116,8 +133,23 @@ class TestEventManager(object):
 
         assert len(TestEventManager._em.get_measurements()) == 2
 
+    def test_get_measurements_with_tank_id(self):
+        TestEventManager.insert_measurements()
+        tank_id = TestEventManager.insert_measurements_for_tank('Second tank')
+
+        l = TestEventManager._em.get_measurements()
+        assert len(l) == 6
+
+        l2 = TestEventManager._em.get_measurements(tank_id = tank_id)
+        assert len(l2) == 3
+
+        l3 = TestEventManager._em.get_measurements(tank_id = TestEventManager._tank.id)
+        assert len(l3) == 3
+
+        assert l3[0].id != l2[0].id
+
     def test_add_logentry_implicit_time(self):
-        le = models.LogEntry('Hi there')
+        le = models.LogEntry(TestEventManager._tank.id, 'Hi there')
         TestEventManager._em.add(le)
 
         l = TestEventManager._em.get_log_entries()
@@ -126,7 +158,7 @@ class TestEventManager(object):
         assert l[0].entry_time == le.entry_time
 
     def test_add_logentry_explicit_time(self):
-        le = models.LogEntry('Oh hello', datetime.datetime.fromtimestamp(123456))
+        le = models.LogEntry(TestEventManager._tank.id, 'Oh hello', datetime.datetime.fromtimestamp(123456))
         TestEventManager._em.add(le)
 
         l = TestEventManager._em.get_log_entries()
@@ -136,9 +168,22 @@ class TestEventManager(object):
     @classmethod
     def insert_log_entries(cls):
         dt = datetime.datetime
-        TestEventManager._em.add(models.LogEntry('abc', dt.fromtimestamp(123456)))
-        TestEventManager._em.add(models.LogEntry('def', dt.fromtimestamp(454335)))
-        TestEventManager._em.add(models.LogEntry('ghi', dt.fromtimestamp(34432)))
+        TestEventManager._em.add(models.LogEntry(TestEventManager._tank.id, 'abc', dt.fromtimestamp(123456)))
+        TestEventManager._em.add(models.LogEntry(TestEventManager._tank.id, 'def', dt.fromtimestamp(454335)))
+        TestEventManager._em.add(models.LogEntry(TestEventManager._tank.id, 'ghi', dt.fromtimestamp(34432)))
+
+    @classmethod
+    def insert_log_entries_for_tank(cls, tankname):
+        dt = datetime.datetime
+
+        tank = models.Tank(tankname)
+        cls._cm.add(tank)
+
+        TestEventManager._em.add(models.LogEntry(tank.id, 'pqr', dt.fromtimestamp(12347856)))
+        TestEventManager._em.add(models.LogEntry(tank.id, 'mno', dt.fromtimestamp(4547335)))
+        TestEventManager._em.add(models.LogEntry(tank.id, 'jkl', dt.fromtimestamp(344532)))
+
+        return tank.id
 
     def test_get_logentry_all(self):
         TestEventManager.insert_log_entries()
@@ -168,7 +213,7 @@ class TestEventManager(object):
         TestEventManager.insert_log_entries()
 
         trange = {'start': datetime.datetime.fromtimestamp(100000)}
-        l = TestEventManager._em.get_log_entries(trange)
+        l = TestEventManager._em.get_log_entries(timerange = trange)
         assert len(l) == 2
         assert l[0].entry_time < l[1].entry_time
 
@@ -176,7 +221,7 @@ class TestEventManager(object):
         TestEventManager.insert_log_entries()
 
         trange = {'start': datetime.datetime.fromtimestamp(20), 'end': datetime.datetime.fromtimestamp(75000)}
-        l = TestEventManager._em.get_log_entries(trange)
+        l = TestEventManager._em.get_log_entries(timerange = trange)
         assert len(l) == 1
         assert l[0].entry == 'ghi'
 
@@ -184,7 +229,7 @@ class TestEventManager(object):
         TestEventManager.insert_log_entries()
 
         trange = {'end': datetime.datetime.fromtimestamp(100000)}
-        l = TestEventManager._em.get_log_entries(trange)
+        l = TestEventManager._em.get_log_entries(timerange = trange)
         assert len(l) == 1
         assert l[0].entry == 'ghi'
 
@@ -205,4 +250,19 @@ class TestEventManager(object):
 
         e = TestEventManager._em.get_log_entry(l[0].id)
         assert e.entry == 'xyz'
+
+    def test_get_logentry_with_tank_id(self):
+        TestEventManager.insert_log_entries()
+        tank_id = TestEventManager.insert_log_entries_for_tank('Second tank')
+
+        l = TestEventManager._em.get_log_entries()
+        assert len(l) == 6
+
+        l2 = TestEventManager._em.get_log_entries(tank_id = TestEventManager._tank.id)
+        assert len(l2) == 3
+
+        l3 = TestEventManager._em.get_log_entries(tank_id = tank_id)
+        assert len(l3) == 3
+
+        assert l2[0].id != l3[0].id
 
