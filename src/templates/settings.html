@@ -1,5 +1,26 @@
 {% include 'header.inc.html' %}
 <div id="main">
+    <h3>Tanks</h3>
+    <hr />
+    <div id="tanks">
+        <table id="tanks_grid">
+            <thead>
+                <tr class="table_header">
+                    <th id="tank_name">Tank name</th>
+                    <th id="tank_control"></th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr class="tank_new_entry">
+                    <td>
+                        <input type="text" id="new_tank_name" class="new_setting" placeholder="Name of new tank" />
+                    </td>
+                    <td>
+                        <button id="submit_new_tank" class="inline-button"><img src="/static/images/submit-entry.svg" alt="Add new tank" class="icon" /></button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
     <h3>Measurements</h3>
     <hr />
     <div id="measurements">
@@ -15,13 +36,13 @@
             <tfoot>
                 <tr class="measurement_new_entry">
                     <td>
-                        <input type="text" id="new_measurement_name" class="new_measurement" placeholder="Name of measured parameter" />
+                        <input type="text" id="new_measurement_name" class="new_setting" placeholder="Name of measured parameter" />
                     </td>
                     <td>
-                        <input type="text" id="new_measurement_units" class="new_measurement" placeholder="Units, e.g. ppm" />
+                        <input type="text" id="new_measurement_units" class="new_setting" placeholder="Units, e.g. ppm" />
                     </td>
                     <td>
-                        <input type="text" id="new_measurement_range" class="new_measurement" placeholder="Low - high, e.g. 75 - 100" />
+                        <input type="text" id="new_measurement_range" class="new_setting" placeholder="Low - high, e.g. 75 - 100" />
                     </td>
                     <td>
                         <button id="submit_new_measurement" class="inline-button"><img src="/static/images/submit-entry.svg" alt="Add new measurement" class="icon" /></button>

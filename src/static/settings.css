@@ -2,6 +2,10 @@
     width:75%;
 }
 
+#tanks_grid {
+    width:75%;
+}
+
 thead th {
     border-bottom:solid 1px gray;
 }
@@ -22,12 +26,20 @@ thead th {
     width:10%;
 }
 
+#tank_name {
+    width:90%;
+}
+
+#tank_control {
+    width:10%;
+}
+
 .table_header th {
     text-align:left;
     padding-right:1em;
 }
 
-.new_measurement {
+.new_setting {
     width:95%;
 }
 
