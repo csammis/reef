@@ -20,11 +20,13 @@ class ModelEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, models.Measurement):
             return {'id': o.id,\
+                    'tank_id': o.tank_id,\
                     'measurement_time': o.measurement_time,\
                     'measurement_type_id': o.measurement_type_id,\
                     'value': o.value}
         elif isinstance(o, models.LogEntry):
             return {'id': o.id,\
+                    'tank_id': o.tank_id,\
                     'entry_time': o.entry_time,\
                     'entry': o.entry}
         elif isinstance(o, models.MeasurementType):
@@ -32,6 +34,9 @@ class ModelEncoder(JSONEncoder):
                     'label': o.label,\
                     'units': o.units, \
                     'acceptable_range': o.acceptable_range()}
+        elif isinstance(o, models.Tank):
+            return {'id': o.id,\
+                    'name': o.name}
         elif isinstance(o, datetime):
             return o.isoformat()
         else:

@@ -9,11 +9,18 @@ post_measurement_config_args.add_argument('label', type=str, required=True, help
 post_measurement_config_args.add_argument('units', type=str, default=None)
 post_measurement_config_args.add_argument('acceptable_range[]', type=float, action='append', default=None)
 
+post_tank_config_args = reqparse.RequestParser()
+post_tank_config_args.add_argument('name', type=str, required=True, help="'name' must be supplied")
+
 class ConfigurationResource(restful.Resource):
 
     def get(self, config_type):
         if config_type == 'measurements':
             return jsonify(configs = config_manager.get_measurement_types())
+        elif config_type == 'tanks':
+            return jsonify(tanks = config_manager.get_tanks())
+        else:
+            return '', 404
 
     def post(self, config_type):
         if config_type == 'measurements':
@@ -25,6 +32,17 @@ class ConfigurationResource(restful.Resource):
             config = models.MeasurementType(args['label'], units = args['units'], acceptable_range = args['acceptable_range[]'])
             config_manager.add(config)
             return jsonify(measurement_type = config)
+        elif config_type == 'tanks':
+            args = post_tank_config_args.parse_args()
+
+            if len(args['name']) == 0:
+                abort(400, message="Required field 'name' cannot be blank")
+
+            tank = models.Tank(args['name'])
+            config_manager.add(tank)
+            return jsonify(tank = tank)
+        else:
+            return '', 404
 
 
 class ConfigurationSingleResource(restful.Resource):
@@ -43,6 +61,21 @@ class ConfigurationSingleResource(restful.Resource):
             config_manager.update_measurement_type(config_id, args['label'], args['units'], args['acceptable_range[]'])
             config = config_manager.get_measurement_type(config_id)
             return { 'measurement_type': { 'id': config_id, 'label': config.label, 'units': config.units, 'acceptable_range': config.acceptable_range() } }, 201
+        elif config_type == 'tanks':
+            args = post_tank_config_args.parse_args()
+
+            if len(args['name']) == 0:
+                abort(400, message="Required field 'name' cannot be blank")
+
+            tank = config_manager.get_tank(config_id)
+            if tank is None:
+                abort(404, message='Tank with ID {} not found'.format(config_id))
+
+            config_manager.update_tank(config_id, args['name'])
+            tank = config_manager.get_tank(config_id)
+            return { 'tank': { 'id': config_id, 'name': tank.name } }, 201
+        else:
+            return '', 404
 
     def get(self, config_type, config_id):
         if config_type == 'measurements':
@@ -50,7 +83,13 @@ class ConfigurationSingleResource(restful.Resource):
             if config is None:
                 abort(404, message='Measurement type with ID {} not found'.format(config_id))
             return jsonify(measurement_type = config)
-        return '', 404
+        elif config_type == 'tanks':
+            tank = config_manager.get_tank(config_id)
+            if tank is None:
+                abort(404, message='Tank with ID {} not found'.format(config_id))
+            return jsonify(tank = tank)
+        else:
+            return '', 404
 
     def delete(self, config_type, config_id):
         if config_type == 'measurements':
@@ -58,5 +97,7 @@ class ConfigurationSingleResource(restful.Resource):
             if config is None:
                 abort(404, message='Measurement type with ID {} not found'.format(config_id))
             config_manager.delete(config)
-        return '', 204
+            return '', 204
+        else:
+            return '', 404
 
