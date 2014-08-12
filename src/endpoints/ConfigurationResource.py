@@ -98,6 +98,12 @@ class ConfigurationSingleResource(restful.Resource):
                 abort(404, message='Measurement type with ID {} not found'.format(config_id))
             config_manager.delete(config)
             return '', 204
+        elif config_type == 'tanks':
+            tank = config_manager.get_tank(config_id)
+            if tank is None:
+                abort(404, message='Tank with ID {} not found'.format(config_id))
+            config_manager.delete(tank)
+            return '', 204
         else:
             return '', 404
 
