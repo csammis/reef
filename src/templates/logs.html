@@ -1,17 +1,20 @@
 {% include 'header.inc.html' %}
 <div id="main">
-    <div id="logentries"></div>
-    <div id="control">
-        <div class="entry-div">
-            New log entry:&nbsp;
-            <input type="text" id="entry" />&nbsp;
-            <button id="submit-link" class="inline-button">Add</button>
+    <div id="tabs">
+        <ul></ul>
+        <div id="logentries"></div>
+        <div id="control">
+            <div class="entry-div">
+                New log entry:&nbsp;
+                <input type="text" id="entry" />&nbsp;
+                <button id="submit-link" class="inline-button">Add</button>
+            </div>
+            <div id="submit-div">
+                <span id="datechanger" class="optional-text">Log will be entered with today's date (<a href="#" id="changedate">change</a>)</span>&nbsp;
+                <span id="busyindicator"><img src="/static/submitting.gif" alt="Saving..." /></span>
+            </div>
         </div>
-        <div id="submit-div">
-            <span id="datechanger" class="optional-text">Log will be entered with today's date (<a href="#" id="changedate">change</a>)</span>&nbsp;
-            <span id="busyindicator"><img src="/static/submitting.gif" alt="Saving..." /></span>
-        </div>
+        <div id="clear">&nbsp;</div>
     </div>
-    <div id="clear">&nbsp;</div>
 </div>
 {% include 'footer.inc.html' %}

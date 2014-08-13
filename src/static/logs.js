@@ -1,17 +1,14 @@
 (function() {
 
     function sendDataRequest() {
-        $.ajax({
-            url: '/logentries/',
-            type: 'GET',
-            dataType: 'json'})
-        .done(function(json) { renderLogEntries(json); })
-        .fail(function(resp) { showDataRequestFailure(); });
-    };
-
-    function showDataRequestFailure() {
-        alert("whoops");
+        fetchAndBuildTankTabs(getLogEntries);
     }
+
+    function getLogEntries(tank_id) {
+        $.ajax({ url: '/logentries/', type: 'GET', dataType: 'json', data: { 'tank_id': tank_id }})
+            .done(function(json) { renderLogEntries(json); })
+            .fail(function(data) { alert(data.responseJSON.message); });
+    };
 
     function renderLogEntries(json) {
         $('#logentries').empty();
@@ -201,7 +198,7 @@
                 type: 'GET',
                 dataType: 'json'})
             .done(function(json) { handleGetSingleEntryResponse(json); })
-            .fail(function(resp) { showDataRequestFailure(); });
+            .fail(function(data) { alert(data.responseJSON.message); });
 
             $('#entry').val('');
             $('#entry').focus();

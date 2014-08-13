@@ -8,6 +8,7 @@ put_logentry_args = reqparse.RequestParser()
 put_logentry_args.add_argument('entry', type=str, required=True, help="'entry' must be supplied")
 
 get_logentry_args = reqparse.RequestParser()
+get_logentry_args.add_argument('tank_id', type=int)
 get_logentry_args.add_argument('start', type=str)
 get_logentry_args.add_argument('end', type=str)
 
@@ -28,7 +29,7 @@ class LogEntryResource(restful.Resource):
         if args['end'] is not None:
             trange['end'] = try_get_time(args, 'end')
 
-        return jsonify(logentries = event_manager.get_log_entries(timerange = trange))
+        return jsonify(logentries = event_manager.get_log_entries(tank_id = args['tank_id'], timerange = trange))
 
     def post(self):
         args = post_logentry_args.parse_args()

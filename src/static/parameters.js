@@ -50,27 +50,10 @@
         color_scale.domain(configIDs);
         configs['length'] = json.configs.length;
 
-        $.ajax({ url: '/configs/tanks', type: 'GET', dataType: 'json' })
-            .done(function(json) { buildTabs(json.tanks); })
-            .fail(function(data) { alert(data.JSONResponse.message); });
+        fetchAndBuildTankTabs(onTabChanged);
     }
-
-    function buildTabs(tanks) {
-        var $tabs = $('#tabs');
-        var $list = $tabs.find('ul').first();
-        for (var i = 0; i < tanks.length; i++) {
-            $('<li>').attr('rpi-data', tanks[i].id).append($('<a>').attr('href', 'tank-tab-' + tanks[i].id).html(tanks[i].name)).appendTo($list);
-            $('<div>').attr('id', 'tank-tab-' + tanks[i].id)
-                .append($('<div>').attr('id', 'graphs'))
-                .appendTo($tabs);
-        }
-        $tabs.tabs({ beforeLoad: onTabBeforeLoad});
-    }
-
-    function onTabBeforeLoad(event, ui) {
-        event.preventDefault();
-
-        var tank_id = ui.tab.attr('rpi-data');
+    
+    function onTabChanged(tank_id) {
         $.ajax({ url: '/measurements/', type: 'GET', dataType: 'json', data: {'tank_id': tank_id}})
             .done(function(json) { renderJson(json); });
     }
