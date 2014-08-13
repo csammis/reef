@@ -1,5 +1,6 @@
 import models
 import datetime
+from sqlalchemy.exc import IntegrityError
 
 class TestEventManager(object):
 
@@ -26,6 +27,20 @@ class TestEventManager(object):
         models.DBSession.query(models.Measurement).delete()
         models.DBSession.query(models.LogEntry).delete()
         models.DBSession.query(models.Tank).filter(models.Tank.name != 'DefaultTank').delete()
+
+    # Still can't believe I have to write this test
+    def test_sqlite_fk_support_on(self):
+        TestEventManager.insert_measurements()
+
+        try:
+            TestEventManager._cm.delete(TestEventManager._tank)
+            assert False, 'Deletion failed despite foreign key constraint'
+        except IntegrityError:
+            assert True
+        except:
+            assert False, 'Deletion failed but threw exception other than IntegrityError'
+        finally:
+            models.DBSession.rollback()
 
     def test_add_measurement_implicit_time(self):
         m = models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'])
