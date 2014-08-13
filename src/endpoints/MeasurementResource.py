@@ -6,6 +6,7 @@ import models
 
 get_measurement_args = reqparse.RequestParser()
 get_measurement_args.add_argument('measurement_type_id', type=int, action='append')
+get_measurement_args.add_argument('tank_id', type=int)
 get_measurement_args.add_argument('start', type=str)
 get_measurement_args.add_argument('end', type=str)
 
@@ -28,7 +29,7 @@ class MeasurementResource(restful.Resource):
         if args['end'] is not None:
             trange['end'] = try_get_time(args, 'end')
 
-        return jsonify(measurements = event_manager.get_measurements(parameters = parameters, timerange = trange))
+        return jsonify(measurements = event_manager.get_measurements(parameters = parameters, tank_id = args['tank_id'], timerange = trange))
 
     def post(self):
         args = post_measurement_args.parse_args()

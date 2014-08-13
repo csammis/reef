@@ -49,12 +49,30 @@
         }
         color_scale.domain(configIDs);
         configs['length'] = json.configs.length;
-        
-        $.ajax({
-            url: '/measurements/',
-            type: 'GET',
-            dataType: 'json'})
-        .done(function(json) { renderJson(json); });
+
+        $.ajax({ url: '/configs/tanks', type: 'GET', dataType: 'json' })
+            .done(function(json) { buildTabs(json.tanks); })
+            .fail(function(data) { alert(data.JSONResponse.message); });
+    }
+
+    function buildTabs(tanks) {
+        var $tabs = $('#tabs');
+        var $list = $tabs.find('ul').first();
+        for (var i = 0; i < tanks.length; i++) {
+            $('<li>').attr('rpi-data', tanks[i].id).append($('<a>').attr('href', 'tank-tab-' + tanks[i].id).html(tanks[i].name)).appendTo($list);
+            $('<div>').attr('id', 'tank-tab-' + tanks[i].id)
+                .append($('<div>').attr('id', 'graphs'))
+                .appendTo($tabs);
+        }
+        $tabs.tabs({ beforeLoad: onTabBeforeLoad});
+    }
+
+    function onTabBeforeLoad(event, ui) {
+        event.preventDefault();
+
+        var tank_id = ui.tab.attr('rpi-data');
+        $.ajax({ url: '/measurements/', type: 'GET', dataType: 'json', data: {'tank_id': tank_id}})
+            .done(function(json) { renderJson(json); });
     }
 
     function getSvgForParameter(mt) {
@@ -62,14 +80,19 @@
 
             ds = dataSplits[mt];
 
-            // Initialize a new SVG with all the graph trimmings
+            // Initialize the graph container area with label and controls
             var label = configs[mt].label;
             var $graphs = $('#graphs');
-            $('<h3>').html(label).appendTo($graphs);
-            $('<div>').attr('id', 'graph-' + mt)
-                .addClass('graphdisplay')
-                .appendTo($graphs);
+            if ($('#graph-' + mt).length == 0) {
+                $('<h3>').html(label).appendTo($graphs);
+                $('<div>').attr('id', 'graph-' + mt)
+                    .addClass('graphdisplay')
+                    .appendTo($graphs);
 
+                buildControlsForMeasurementType(mt);
+            }
+
+            // Initialize a new SVG with all the graph trimmings
             svgs[mt] = d3.select('#graph-' + mt).append('svg:svg')
                 .attr('width', WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
                 .attr('height', HEIGHT + MARGIN.TOP + MARGIN.BOTTOM)
@@ -115,8 +138,6 @@
                     .attr('height', yScale(v0) - yScale(v1))
                     .attr('class', 'acceptable_range');
             }
-            
-            buildControlsForMeasurementType(mt);
         }
 
         return svgs[mt];
@@ -149,6 +170,9 @@
     
     function renderJson(json) {
         var full_dataset = json.measurements;
+        dataSplits = {};
+        svgs = {};
+        $('#graphs').find('svg').remove();
 
         // Split up the full dataset into measurement-specific slices
         for (var i = 0; i < full_dataset.length; i++) {
@@ -284,12 +308,14 @@
                     svg.selectAll('path.line.y' + keys[i]).remove();
                 }
             }
+            svg.select('text.nodata_label').remove();
         }
         // Stash the list of datasets rendered onto this SVG for later cleanup
         svg.attr('current-datasets', dataset.data.keys().join(','));
 
         // Set time domain across all sets in the dataset
-        dataset.xScale.domain(d3.extent(d3.merge(dataset.data.values()), xPos));
+        var allData = d3.merge(dataset.data.values());
+        dataset.xScale.domain(d3.extent(allData, xPos));
 
         dataset.data.forEach(function(key, value) {
 
@@ -328,6 +354,14 @@
                .attr('fill', function(d) { return shadeRGBColor(color_scale(d.measurement_type_id), -0.2); })
                .attr('r', 4);
         });
+
+        if (allData.length == 0) {
+            svg.append('text')
+                .attr('x', (WIDTH + MARGIN.LEFT) / 2)
+                .attr('y', (HEIGHT + MARGIN.BOTTOM) / 2)
+                .attr('class', 'axis_label nodata_label')
+                .text('No data found');
+        }
 
         // Draw the axes
         var xAxis = d3.svg.axis().scale(dataset.xScale).orient('bottom');
