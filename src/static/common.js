@@ -32,3 +32,19 @@ function fetchAndBuildTankTabs(tabChangedFunction) {
         });
 }
 
+// Common execute-first functions like JQuery extensions
+(function() {
+    $.fn.hoverize = function() {
+        return this.each(function() {
+            $(this).hover(function() { $(this).addClass('entry-hover'); }, function() { $(this).removeClass('entry-hover'); });
+        });
+    };
+
+    $.fn.fadeRemove = function() {
+        return this.each(function() {
+            $(this).fadeOut({ 'complete': function() { $(this).remove(); } });
+        });
+    };
+
+})();
+

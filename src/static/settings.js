@@ -188,18 +188,6 @@
         bindInputsToKeyHandler('.tank_new_entry', addNewTank);
         bindInputsToKeyHandler('.measurement_new_entry', addNewMeasurement);
 
-        $.fn.hoverize = function() {
-            return this.each(function() {
-                $(this).hover(function() { $(this).addClass('entry-hover'); }, function() { $(this).removeClass('entry-hover'); });
-            });
-        };
-
-        $.fn.fadeRemove = function() {
-            return this.each(function() {
-                $(this).fadeOut({ 'complete': function() { $(this).remove(); } });
-            });
-        };
-
         sendConfigRequests();
     };
 

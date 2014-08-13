@@ -96,10 +96,7 @@
                 bindInputsToKeyHandler('#id-' + id, submitEdit, finished);
                 $('#inline-edit-' + id).focus().select();
             })
-            .hover(
-                    function() { $(this).addClass('entry-hover'); },
-                    function() { $(this).removeClass('entry-hover'); }
-                  )
+            .hoverize()
             .appendTo($entrySpan);
 
         // Set up the control for deleting an entry
@@ -138,9 +135,7 @@
         } else {
             $elementToRemove = $target;
         }
-        $elementToRemove.fadeOut({
-            complete: function() { $(this).remove(); }
-        });
+        $elementToRemove.fadeRemove();
     }
 
     function showDateEntry() {
