@@ -55,7 +55,10 @@
     
     function onTabChanged(tank_id) {
         $.ajax({ url: '/measurements/', type: 'GET', dataType: 'json', data: {'tank_id': tank_id}})
-            .done(function(json) { renderJson(json); });
+            .done(function(json) {
+                $('#graphs').attr('rpi-data', tank_id);
+                renderJson(json);
+            });
     }
 
     function getSvgForParameter(mt) {
@@ -172,7 +175,8 @@
         for (var c = 0; c < configIDs.length; c++) {
             var mt = configs[configIDs[c]].id;
             if (dataSplits[mt] === undefined) {
-                dataSplits[mt] = initializeNewDataset([mt]);
+                dataSplits[mt] = initializeNewDataset(mt);
+                dataSplits[mt].data.set(mt, new Array());
             }
             renderDatasetForMeasurementTypeOverTime(mt);
         }
@@ -200,7 +204,8 @@
             var value = $input.val();
             var post_data = {
                 'value': value,
-                'measurement_type_id': mt
+                'measurement_type_id': mt,
+                'tank_id': $('#graphs').attr('rpi-data')
             };
 
             var entry_time = $('#entry-time-' + mt).val();
@@ -213,18 +218,13 @@
                 post_data['time'] = entry_time;
             }
 
-            $.ajax({
-                url: '/measurements/',
-                type: 'POST',
-                dataType: 'json',
-                data: post_data
-            })
-            .done(function(json) {
-                $input.val('').focus();
-                dataSplits[mt].data.push(json.event);
-                renderDatasetForMeasurementTypeOverTime(mt);
-            })
-            .fail(function(data) { alert(data.message); });
+            $.ajax({ url: '/measurements/', type: 'POST', dataType: 'json', data: post_data })
+                .done(function(json) {
+                    $input.val('').focus();
+                    dataSplits[mt].data.get(mt).push(json.event);
+                    renderDatasetForMeasurementTypeOverTime(mt);
+                })
+                .fail(function(data) { alert(data.message); });
         };
         $('<span>').addClass('entry-units').html('<br />Measured:&nbsp;').appendTo($entryContainer);
         $('<input>').addClass('date-entry')

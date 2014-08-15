@@ -11,6 +11,7 @@ get_measurement_args.add_argument('start', type=str)
 get_measurement_args.add_argument('end', type=str)
 
 post_measurement_args = reqparse.RequestParser()
+post_measurement_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
 post_measurement_args.add_argument('measurement_type_id', type=int, required=True, help="'measurement_type_id' must be supplied")
 post_measurement_args.add_argument('value', type=float, required=True, help="'value' must be supplied")
 post_measurement_args.add_argument('time', type=str)
@@ -42,7 +43,7 @@ class MeasurementResource(restful.Resource):
         if args['time'] is not None:
             measurement_time = try_get_time(args, 'time')
 
-        event = models.Measurement(measurement_type_id = measurement_type.id, measurement_time = measurement_time, value = args['value'])
+        event = models.Measurement(tank_id = args['tank_id'], measurement_type_id = measurement_type.id, measurement_time = measurement_time, value = args['value'])
         event_manager.add(event)
         return jsonify(event = event)
 
