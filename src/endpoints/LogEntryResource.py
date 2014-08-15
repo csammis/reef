@@ -13,6 +13,7 @@ get_logentry_args.add_argument('start', type=str)
 get_logentry_args.add_argument('end', type=str)
 
 post_logentry_args = reqparse.RequestParser()
+post_logentry_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
 post_logentry_args.add_argument('entry', type=str, required=True, help="'entry' must be supplied")
 post_logentry_args.add_argument('time', type=str)
 
@@ -41,7 +42,7 @@ class LogEntryResource(restful.Resource):
         if len(entry) == 0:
             abort(400, message="'entry' must be supplied")
 
-        event = models.LogEntry(entry_time = entry_time, entry = args['entry'])
+        event = models.LogEntry(tank_id = args['tank_id'], entry_time = entry_time, entry = args['entry'])
         return jsonify(log_id = event_manager.add(event))
 
 class LogEntrySingleResource(restful.Resource):

@@ -6,7 +6,10 @@
 
     function getLogEntries(tank_id) {
         $.ajax({ url: '/logentries/', type: 'GET', dataType: 'json', data: { 'tank_id': tank_id }})
-            .done(function(json) { renderLogEntries(json); })
+            .done(function(json) {
+                $('#control').attr('rpi-data', tank_id);
+                renderLogEntries(json);
+            })
             .fail(function(data) { alert(data.responseJSON.message); });
     };
 
@@ -67,15 +70,9 @@
 
                 function submitEdit() {
                     var newEntry = $('#inline-edit-' + id).val();
-                    $.ajax({
-                        url: '/logentries/' + id,
-                        type: 'PUT',
-                        dataType: 'json',
-                        data: {
-                            entry: newEntry
-                        }})
-                    .done(function(json) { $originalElement.html(newEntry); finished(); })
-                    .fail(function(json) { alert("Couldn't edit entry"); });
+                    $.ajax({ url: '/logentries/' + id, type: 'PUT', dataType: 'json', data: { entry: newEntry } })
+                        .done(function(json) { $originalElement.html(newEntry); finished(); })
+                        .fail(function(json) { alert("Couldn't edit entry"); });
                 };
 
                 var $container = $('#id-' + id);
@@ -102,12 +99,9 @@
         // Set up the control for deleting an entry
         var $editEntryElement = $('<span>').attr('id', 'logentry-control-' + id).addClass('logentry-control').hide();
         $('<button>').html('Delete').button().addClass('inline-button').click(function() {
-            $.ajax({
-                url: '/logentries/' + id,
-                type: 'DELETE',
-                dataType: 'json'})
-            .done(function(json) { removeLogEntry(id); })
-            .fail(function(json) { alert("Couldn't delete entry"); });
+            $.ajax({ url: '/logentries/' + id, type: 'DELETE', dataType: 'json'})
+                .done(function(json) { removeLogEntry(id); })
+                .fail(function(json) { alert("Couldn't delete entry"); });
         }).appendTo($editEntryElement);
 
         $entrySpan.append($editEntryElement);
@@ -162,6 +156,7 @@
         
         var entry = $('#entry').val();
         var entry_time = $('#entry_time').val();
+        var tank_id = $('#control').attr('rpi-data');
 
         if (entry_time != undefined) {
             // Since there's no time part and the server's going to conver to UTC,
@@ -172,28 +167,18 @@
         }
 
         onAddActionStart();
-        $.ajax({
-            url: '/logentries/',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'entry': entry,
-                'time': entry_time
-            }})
-        .done(function(json) { handlePostLogEntryResponse(json, true); })
-        .fail(function(resp) { handlePostLogEntryResponse(resp, false); });
+        $.ajax({ url: '/logentries/', type: 'POST', dataType: 'json', data: { 'entry': entry, 'time': entry_time, 'tank_id': tank_id } })
+            .done(function(json) { handlePostLogEntryResponse(json, true); })
+            .fail(function(resp) { handlePostLogEntryResponse(resp, false); });
 
         return false;
     };
 
     function handlePostLogEntryResponse(json, success) {
         if (success) {
-            $.ajax({
-                url: '/logentries/' + json.log_id,
-                type: 'GET',
-                dataType: 'json'})
-            .done(function(json) { handleGetSingleEntryResponse(json); })
-            .fail(function(data) { alert(data.responseJSON.message); });
+            $.ajax({ url: '/logentries/' + json.log_id, type: 'GET', dataType: 'json'})
+                .done(function(json) { handleGetSingleEntryResponse(json); })
+                .fail(function(data) { alert(data.responseJSON.message); });
 
             $('#entry').val('');
             $('#entry').focus();
