@@ -1,6 +1,8 @@
 from models import DBSession
 from models.MeasurementType import MeasurementType
 from models.Tank import Tank
+from models.InUseException import InUseException
+from sqlalchemy.exc import IntegrityError
 
 class ConfigManager(object):
 
@@ -13,8 +15,12 @@ class ConfigManager(object):
         return obj.id
 
     def delete(self, obj):
-        DBSession.delete(obj)
-        DBSession.commit()
+        try:
+            DBSession.delete(obj)
+            DBSession.commit()
+        except IntegrityError:
+            DBSession.rollback()
+            raise InUseException
 
     def get_measurement_type(self, measurement_type_id):
         query = DBSession.query(MeasurementType).filter(MeasurementType.id == measurement_type_id)

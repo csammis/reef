@@ -32,6 +32,21 @@ function fetchAndBuildTankTabs(tabChangedFunction) {
         });
 }
 
+function doJqueryAjax(url, type, onDone, data) {
+    var ajaxParams = { url: url, type: type, dataType: 'json'};
+    if (data !== undefined) {
+        ajaxParams['data'] = data;
+    }
+
+    $.ajax(ajaxParams).done(onDone).fail(function(data) {
+        if (data.responseJSON) {
+            alert(data.responseJSON.message);
+        } else {
+            alert('Something went wrong (HTTP ' + data.status + ' ' + data.statusText + ')');
+        }
+    });
+}
+
 // Common execute-first functions like JQuery extensions
 (function() {
     $.fn.hoverize = function() {
@@ -47,4 +62,3 @@ function fetchAndBuildTankTabs(tabChangedFunction) {
     };
 
 })();
-

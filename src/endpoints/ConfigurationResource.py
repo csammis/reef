@@ -92,18 +92,18 @@ class ConfigurationSingleResource(restful.Resource):
             return '', 404
 
     def delete(self, config_type, config_id):
+        config = None
         if config_type == 'measurements':
             config = config_manager.get_measurement_type(config_id)
-            if config is None:
-                abort(404, message='Measurement type with ID {} not found'.format(config_id))
-            config_manager.delete(config)
-            return '', 204
         elif config_type == 'tanks':
-            tank = config_manager.get_tank(config_id)
-            if tank is None:
-                abort(404, message='Tank with ID {} not found'.format(config_id))
-            config_manager.delete(tank)
-            return '', 204
-        else:
+            config = config_manager.get_tank(config_id)
+
+        if config is None:
             return '', 404
+
+        try:
+            config_manager.delete(config)
+        except models.InUseException:
+            return { 'message': 'Cannot delete configuration: object is in use.'.format(config_id) }, 409
+        return '', 204
 

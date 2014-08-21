@@ -18,6 +18,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute('PRAGMA foreign_keys=ON')
     cursor.close()
 
+from models.InUseException import InUseException
 from models.Measurement import Measurement
 from models.LogEntry import LogEntry
 from models.EventManager import EventManager

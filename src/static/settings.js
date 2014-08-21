@@ -1,25 +1,21 @@
 (function() {
 
     function sendConfigRequests() {
-        $.ajax({ url: '/configs/measurements', type: 'GET', dataType: 'json'})
-        .done(function(json) {
+        doJqueryAjax('/configs/measurements', 'GET', function(json) {
             var $grid = $('#measurements_grid');
             $grid.children('tr.data').remove();
             for (var i = 0; i < json.configs.length; i++) {
                 $('#measurements_grid').append(buildMeasurementType(json.configs[i]));
             }
-        })
-        .fail(function() { alert('Failed to get configured measurement types'); });
-        
-        $.ajax({ url: '/configs/tanks', type: 'GET', dataType: 'json'})
-        .done(function(json) {
+        });
+       
+        doJqueryAjax('/configs/tanks', 'GET', function(json) {
             var $grid = $('#tanks_grid');
             $grid.children('tr.data').remove();
             for (var i = 0; i < json.tanks.length; i++) {
                 $grid.append(buildTank(json.tanks[i]));
             }
-        })
-        .fail(function() { alert('Failed to get configured tanks'); });
+        });
     };
 
     function buildTank(config) {
@@ -66,16 +62,12 @@
 
     function onDeleteMeasurementType() {
         var id = $(this).attr('data');
-        $.ajax({ url: '/configs/measurements/' + id, type: 'DELETE', dataType: 'json'})
-        .done(function(json) { $('#measurement-type-id-' + id).fadeRemove(); })
-        .fail(function(data) { alert(data.responseJSON.message); });
+        doJqueryAjax('/configs/measurements/' + id, 'DELETE', function(json) { $('#measurement-type-id-' + id).fadeRemove(); });
     }
 
     function onDeleteTank() {
         var id = $(this).attr('data');
-        $.ajax({ url: '/configs/tanks/' + id, type: 'DELETE', dataType: 'json'})
-        .done(function(json) { $('#tank-id-' + id).fadeRemove(); })
-        .fail(function(data) { alert(data.responseJSON.message); });
+        doJqueryAjax('/configs/tanks/' + id, 'DELETE', function(json) { $('#tank-id-' + id).fadeRemove(); });
     }
 
     function onEditTank() {
@@ -95,12 +87,10 @@
 
         var submitEdit = function() {
             var config = {'name': $('#inline-edit-tank-name-' + id).val()};
-            $.ajax({ url: '/configs/tanks/' + id, type: 'PUT', dataType: 'json', data: config})
-            .done(function() {
+            doJqueryAjax('/configs/tanks/' + id, 'PUT', function() {
                 originals.name = config.name;
                 finished();
-            })
-            .fail(function(data) { alert('Unable to update tank: ' + data.responseJSON.message); });
+            }, config);
         }
 
         inlineEditize(originals.nameElement, 'inline-edit-tank-name-' + id);
@@ -132,14 +122,12 @@
 
         var submitEdit = function() {
             var newConfig = createJsonForUpdate('#inline-edit-label-' + id, '#inline-edit-units-' + id, '#inline-edit-range-' + id);
-            $.ajax({ url: '/configs/measurements/' + id, type: 'PUT', dataType: 'json', data: newConfig })
-            .done(function() {
+            doJqueryAjax('/configs/measurements/' + id, 'PUT', function() {
                 originals.label = newConfig.label;
                 originals.units = newConfig.units;
                 originals.range = newConfig.rangeHtml;
                 finished();
-            })
-            .fail(function(data) { alert('Unable to update measurement type: ' + data.responseJSON.message); });
+            }, newConfig);
         };
 
         inlineEditize(originals.labelElement, 'inline-edit-label-' + id);
@@ -152,33 +140,21 @@
 
     function addNewMeasurement() {
         var config = createJsonForUpdate('#new_measurement_name', '#new_measurement_units', '#new_measurement_range');
-
-        $.ajax({ url: '/configs/measurements', type: 'POST', dataType: 'json', data: config})
-        .done(function(json) {
-            buildMeasurementType(json.measurement_type)
-                .hide()
-                .appendTo($('#measurements_grid'))
-                .fadeIn();
+        doJqueryAjax('/configs/measurements', 'POST', function(json) {
+            buildMeasurementType(json.measurement_type).hide().appendTo($('#measurements_grid')).fadeIn();
             $('#new_measurement_name').val('').focus();
             $('#new_measurement_units').val('');
             $('#new_measurement_range').val('');
-        })
-        .fail(function(data) { alert(data.responseJSON.message); });
+        }, config);
         return false;
     }
 
     function addNewTank() {
         var config = {'name': $('#new_tank_name').val() };
-
-        $.ajax({ url: '/configs/tanks', type: 'POST', dataType: 'json', data: config})
-        .done(function(json) {
-            buildTank(json.tank)
-                .hide()
-                .appendTo($('#tanks_grid'))
-                .fadeIn();
+        doJqueryAjax('/configs/tanks', 'POST', function(json) {
+            buildTank(json.tank).hide().appendTo($('#tanks_grid')).fadeIn();
             $('#new_tank_name').val('').focus();
-        })
-        .fail(function(data) { alert(data.responseJSON.message); });
+        }, config);
         return false;
     };
 

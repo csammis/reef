@@ -1,0 +1,2 @@
+class InUseException(Exception):
+    pass
