@@ -1,6 +1,8 @@
 from models import DBSession
 from models.Measurement import Measurement
+from models.MeasurementType import MeasurementType
 from models.LogEntry import LogEntry
+from sqlalchemy import func
 import datetime
 
 class EventManager(object):
@@ -40,6 +42,14 @@ class EventManager(object):
         if 'end' in timerange:
             query = query.filter(Measurement.measurement_time <= timerange['end'])
         return query.order_by(Measurement.measurement_time.asc()).all()
+
+    def get_latest_measurements(self, tank_id):
+        query = DBSession.query(func.max(Measurement.measurement_time), MeasurementType.label, Measurement.value, MeasurementType.units)\
+                .join(MeasurementType)\
+                .filter(Measurement.tank_id == tank_id)\
+                .group_by(MeasurementType.label)\
+                .order_by(MeasurementType.label.asc())
+        return query.all()
 
     def get_log_entries(self, tank_id = None, timerange = {}):
         query = DBSession.query(LogEntry)

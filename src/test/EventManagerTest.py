@@ -35,7 +35,7 @@ class TestEventManager(object):
         try:
             TestEventManager._cm.delete(TestEventManager._tank)
             assert False, 'Deletion failed despite foreign key constraint'
-        except IntegrityError:
+        except models.InUseException:
             assert True
         except:
             assert False, 'Deletion failed but threw exception other than IntegrityError'
@@ -162,6 +162,20 @@ class TestEventManager(object):
         assert len(l3) == 3
 
         assert l3[0].id != l2[0].id
+
+    def test_get_latest_measurements(self):
+        TestEventManager.insert_measurements()
+        dt = datetime.datetime
+        # Insert another set of measurements which have a later time than the stock test set
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'], dt.fromtimestamp(123500), 430))
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['phosphate'], dt.fromtimestamp(433600), 0.04))
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['KH'], dt.fromtimestamp(32300), 6.97))
+
+        l = TestEventManager._em.get_latest_measurements(TestEventManager._tank.id)
+        assert len(l) == 3
+        assert l[0].label == 'Calcium', l[0].label
+        assert l[0].value == 430, l[0].value
+
 
     def test_add_logentry_implicit_time(self):
         le = models.LogEntry(TestEventManager._tank.id, 'Hi there')
