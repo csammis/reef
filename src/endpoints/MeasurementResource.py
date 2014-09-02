@@ -1,14 +1,17 @@
-from flask import jsonify
+from flask import jsonify, send_file
 from flask.ext import restful
 from flask.ext.restful import abort, reqparse
 from endpoints import event_manager, config_manager, try_get_time
 import models
+from resources import ParameterImage
+from io import BytesIO
 
 get_measurement_args = reqparse.RequestParser()
 get_measurement_args.add_argument('measurement_type_id', type=int, action='append')
-get_measurement_args.add_argument('tank_id', type=int)
+get_measurement_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
 get_measurement_args.add_argument('start', type=str)
 get_measurement_args.add_argument('end', type=str)
+get_measurement_args.add_argument('as_of', type=str)
 
 post_measurement_args = reqparse.RequestParser()
 post_measurement_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
@@ -25,12 +28,17 @@ class MeasurementResource(restful.Resource):
         args = get_measurement_args.parse_args()
         parameters = args['measurement_type_id']
         trange = {}
-        if args['start'] is not None:
-            trange['start'] = try_get_time(args, 'start')
-        if args['end'] is not None:
-            trange['end'] = try_get_time(args, 'end')
+        if args['as_of'] is None:
+            if args['start'] is not None:
+                trange['start'] = try_get_time(args, 'start')
+            if args['end'] is not None:
+                trange['end'] = try_get_time(args, 'end')
+            return jsonify(measurements = event_manager.get_measurements(parameters = parameters, tank_id = args['tank_id'], timerange = trange))
 
-        return jsonify(measurements = event_manager.get_measurements(parameters = parameters, tank_id = args['tank_id'], timerange = trange))
+        else:
+            as_of = try_get_time(args, 'as_of')
+            pimg = ParameterImage.ParameterImage()
+            return send_file(pimg.get_image_stream(args['tank_id'], as_of), mimetype='image/png')
 
     def post(self):
         args = post_measurement_args.parse_args()
