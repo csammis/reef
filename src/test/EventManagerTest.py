@@ -167,11 +167,16 @@ class TestEventManager(object):
         TestEventManager.insert_measurements()
         dt = datetime.datetime
         # Insert another set of measurements which have a later time than the stock test set
-        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'], dt.fromtimestamp(123500), 430))
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'], dt.fromtimestamp(433620), 430))
         TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['phosphate'], dt.fromtimestamp(433600), 0.04))
-        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['KH'], dt.fromtimestamp(32300), 6.97))
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['KH'], dt.fromtimestamp(433660), 6.97))
 
-        l = TestEventManager._em.get_latest_measurements(TestEventManager._tank.id)
+        # Insert still another set of measurements which have an even later time than the stock test set
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['calcium'], dt.fromtimestamp(440000), 450))
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['phosphate'], dt.fromtimestamp(440000), 0.06))
+        TestEventManager._em.add(models.Measurement(TestEventManager._tank.id, TestEventManager._mtypes['KH'], dt.fromtimestamp(440000), 7.10))
+
+        l = TestEventManager._em.get_latest_measurements(TestEventManager._tank.id, dt.fromtimestamp(435000))
         assert len(l) == 3
         assert l[0].label == 'Calcium', l[0].label
         assert l[0].value == 430, l[0].value

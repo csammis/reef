@@ -106,8 +106,19 @@ class TestConfigManager(object):
         assert t.id == l[0].id
         assert t.name == l[0].name
 
+    def test_get_tank_from_name(self):
+        TestConfigManager.insert_tanks()
+
+        l = TestConfigManager._cm.get_tanks()
+        t = TestConfigManager._cm.get_tank_from_name(l[0].name)
+        assert t is not None
+        assert t.id == l[0].id
+
     def test_get_tank_not_found(self):
         assert TestConfigManager._cm.get_tank(0) is None
+
+    def test_get_tank_from_name_not_found(self):
+        assert TestConfigManager._cm.get_tank_from_name('Test') is None
 
     def test_update_tank(self):
         TestConfigManager.insert_tanks()

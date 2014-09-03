@@ -10,11 +10,17 @@ models.initialize_sql('models/reefpi.db')
 event_manager = models.EventManager()
 config_manager = models.ConfigManager()
 
+def try_parse_time(dt):
+    try:
+        return dateutil.parser.parse(dt)
+    except:
+        abort(400, message="Unable to parse '{}' into datetime".format(dt))
+
 def try_get_time(args, key):
     try:
-        return dateutil.parser.parse(args[key])
-    except:
-        abort(400, message="Unable to parse '{}' parameter '{}' into datetime".format(key, args[key]))
+        return try_parse_time(args[key])
+    except KeyError:
+        abort(400, message="Unable to parse '{}' parameter into datetime: no such parameter was supplied".format(key))
 
 class ModelEncoder(JSONEncoder):
     def default(self, o):
@@ -46,6 +52,7 @@ class ModelEncoder(JSONEncoder):
 from endpoints import MeasurementResource
 api.add_resource(MeasurementResource.MeasurementResource, '/measurements/')
 api.add_resource(MeasurementResource.MeasurementSingleResource, '/measurements/<int:measurement_id>')
+api.add_resource(MeasurementResource.MeasurementImageResource, '/measurements/<string:tank_name>/<string:as_of>')
 from endpoints import LogEntryResource
 api.add_resource(LogEntryResource.LogEntryResource, '/logentries/')
 api.add_resource(LogEntryResource.LogEntrySingleResource, '/logentries/<int:logentry_id>')

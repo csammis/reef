@@ -1,7 +1,7 @@
 from flask import jsonify, send_file
 from flask.ext import restful
 from flask.ext.restful import abort, reqparse
-from endpoints import event_manager, config_manager, try_get_time
+from endpoints import event_manager, config_manager, try_get_time, try_parse_time
 import models
 from resources import ParameterImage
 from io import BytesIO
@@ -11,7 +11,6 @@ get_measurement_args.add_argument('measurement_type_id', type=int, action='appen
 get_measurement_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
 get_measurement_args.add_argument('start', type=str)
 get_measurement_args.add_argument('end', type=str)
-get_measurement_args.add_argument('as_of', type=str)
 
 post_measurement_args = reqparse.RequestParser()
 post_measurement_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
@@ -28,17 +27,11 @@ class MeasurementResource(restful.Resource):
         args = get_measurement_args.parse_args()
         parameters = args['measurement_type_id']
         trange = {}
-        if args['as_of'] is None:
-            if args['start'] is not None:
-                trange['start'] = try_get_time(args, 'start')
-            if args['end'] is not None:
-                trange['end'] = try_get_time(args, 'end')
-            return jsonify(measurements = event_manager.get_measurements(parameters = parameters, tank_id = args['tank_id'], timerange = trange))
-
-        else:
-            as_of = try_get_time(args, 'as_of')
-            pimg = ParameterImage.ParameterImage()
-            return send_file(pimg.get_image_stream(args['tank_id'], as_of), mimetype='image/png')
+        if args['start'] is not None:
+            trange['start'] = try_get_time(args, 'start')
+        if args['end'] is not None:
+            trange['end'] = try_get_time(args, 'end')
+        return jsonify(measurements = event_manager.get_measurements(parameters = parameters, tank_id = args['tank_id'], timerange = trange))
 
     def post(self):
         args = post_measurement_args.parse_args()
@@ -55,6 +48,18 @@ class MeasurementResource(restful.Resource):
         event_manager.add(event)
         return jsonify(event = event)
 
+#
+# Define a resource for returning an image showing parameters as of a date
+#
+class MeasurementImageResource(restful.Resource):
+
+    def get(self, tank_name, as_of):
+        as_of_date = try_parse_time(as_of)
+        tank = config_manager.get_tank_from_name(tank_name)
+        if tank is None:
+            abort(400, message="Tank with name '{}' not found".format(tank_name))
+        pimg = ParameterImage.ParameterImage()
+        return send_file(pimg.get_image_stream(tank.id, as_of_date), mimetype='image/png')
 
 #
 # Define a resource for dealing with a single measurement

@@ -43,10 +43,11 @@ class EventManager(object):
             query = query.filter(Measurement.measurement_time <= timerange['end'])
         return query.order_by(Measurement.measurement_time.asc()).all()
 
-    def get_latest_measurements(self, tank_id):
+    def get_latest_measurements(self, tank_id, as_of):
         query = DBSession.query(func.max(Measurement.measurement_time), MeasurementType.label, Measurement.value, MeasurementType.units)\
                 .join(MeasurementType)\
                 .filter(Measurement.tank_id == tank_id)\
+                .filter(Measurement.measurement_time <= as_of)\
                 .group_by(MeasurementType.label)\
                 .order_by(MeasurementType.label.asc())
         return query.all()

@@ -45,6 +45,12 @@ class ConfigManager(object):
             return None
         return query.first()
 
+    def get_tank_from_name(self, tank_name):
+        query = DBSession.query(Tank).filter(Tank.name == tank_name)
+        if query.count() == 0:
+            return None
+        return query.first()
+
     def get_tanks(self):
         query = DBSession.query(Tank)
         return query.order_by(Tank.name.asc()).all()
