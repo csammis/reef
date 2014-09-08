@@ -16,7 +16,41 @@
                 $grid.append(buildTank(json.tanks[i]));
             }
         });
+
+        doJqueryAjax('/schedule/', 'GET', function(json) {
+            var $div = $('#schedule-entry');
+            $div.children().remove();
+            for (var i = 0; i < json.all.length; i++) {
+                $div.append(buildScheduleForTank(json.all[i]));
+            }
+        });
     };
+
+    function getPrettyStringForDays(days) {
+        var retval = new Array();
+        if (days.monday) retval.push('Monday');
+        if (days.tuesday) retval.push('Tuesday');
+        if (days.wednesday) retval.push('Wednesday');
+        if (days.thursday) retval.push('Thursday');
+        if (days.friday) retval.push('Friday');
+        if (days.saturday) retval.push('Saturday');
+        if (days.sunday) retval.push('Sunday');
+        
+        if (retval.length > 0) {
+            return 'every ' + retval.join(', ');
+        } else {
+            return 'never';
+        }
+    }
+
+    function buildScheduleForTank(config) {
+        var $section = $('<div>').addClass('schedule-for').html('Schedule for tank ' + config.name + ':');
+        var $list = $('<ul>').addClass('schedule-list').appendTo($section);
+        for (var i = 0; i < config.schedule.length; i++) {
+            $('<li>').html(config.schedule[i].event_name + ' ' + getPrettyStringForDays(config.schedule[i].on_days)).appendTo($list);
+        }
+        return $section;
+    }
 
     function buildTank(config) {
         var $row = $('<tr>').addClass('data').attr('id', 'tank-id-' + config.id).hoverize();
