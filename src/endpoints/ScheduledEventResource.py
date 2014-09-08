@@ -35,6 +35,38 @@ class ScheduledEventResource(restful.Resource):
         config_manager.add(se)
         return jsonify(schedule = se)
 
+class ScheduledEventSingleResource(restful.Resource):
+
+    def put(self, event_id):
+        se = config_manager.get_scheduled_event(event_id)
+        if se is None:
+            abort(404, message="Scheduled event with ID {} not found".format(event_id))
+        args = post_event_args.parse_args()
+        days = args['on_days[]']
+        if days is None:
+            days = []
+        update_dict = {}
+        update_dict[models.ScheduledEvent.on_sunday] = True if 0 in days else False
+        update_dict[models.ScheduledEvent.on_monday] = True if 1 in days else False
+        update_dict[models.ScheduledEvent.on_tuesday] = True if 2 in days else False
+        update_dict[models.ScheduledEvent.on_wednesday] = True if 3 in days else False
+        update_dict[models.ScheduledEvent.on_thursday] = True if 4 in days else False
+        update_dict[models.ScheduledEvent.on_friday] = True if 5 in days else False
+        update_dict[models.ScheduledEvent.on_saturday] = True if 6 in days else False
+        update_dict[models.ScheduledEvent.event_name] = args['event_name']
+        config_manager.update_scheduled_event(event_id, update_dict)
+
+        response = jsonify(schedule = config_manager.get_scheduled_event(event_id))
+        response.status_code = 201
+        return response
+
+    def delete(self, event_id):
+        se = config_manager.get_scheduled_event(event_id)
+        if se is None:
+            abort(404, message="Scheduled event with ID {} not found".format(event_id))
+        config_manager.delete(se)
+        return '', 204
+
 class ScheduledEventAllResource(restful.Resource):
     def get(self):
         retval = []

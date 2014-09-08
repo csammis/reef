@@ -65,3 +65,13 @@ class ConfigManager(object):
     def get_scheduled_events(self, tank_id):
         query = DBSession.query(ScheduledEvent).filter(ScheduledEvent.tank_id == tank_id)
         return query.order_by(ScheduledEvent.event_name.asc()).all()
+
+    def get_scheduled_event(self, event_id):
+        query = DBSession.query(ScheduledEvent).filter(ScheduledEvent.id == event_id)
+        if query.count() == 0:
+            return None
+        return query.first()
+
+    def update_scheduled_event(self, event_id, update_dict):
+        DBSession.query(ScheduledEvent).filter(ScheduledEvent.id == event_id).update(update_dict)
+        DBSession.commit()

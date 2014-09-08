@@ -39,6 +39,17 @@ class TestScheduledEvent(object):
         assert len(l) == 3
         assert l[0].event_name < l[1].event_name and l[1].event_name < l[2].event_name
 
+    def test_get_scheduled_event(self):
+        TestScheduledEvent.insert_scheduled_events()
+
+        l = TestScheduledEvent._cm.get_scheduled_events(TestScheduledEvent._tank.id)
+        se = TestScheduledEvent._cm.get_scheduled_event(l[0].id)
+        assert se is not None
+        assert se.event_name == l[0].event_name
+
+    def test_get_scheduled_event_not_fount(self):
+        assert TestScheduledEvent._cm.get_scheduled_event(-1) is None
+
     def test_delete_scheduled_event(self):
         TestScheduledEvent.insert_scheduled_events()
 
