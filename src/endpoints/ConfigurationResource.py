@@ -60,7 +60,9 @@ class ConfigurationSingleResource(restful.Resource):
             
             config_manager.update_measurement_type(config_id, args['label'], args['units'], args['acceptable_range[]'])
             config = config_manager.get_measurement_type(config_id)
-            return { 'measurement_type': { 'id': config_id, 'label': config.label, 'units': config.units, 'acceptable_range': config.acceptable_range() } }, 201
+            response = jsonify(measurement_type = config)
+            response.status_code = 201
+            return response
         elif config_type == 'tanks':
             args = post_tank_config_args.parse_args()
 
@@ -73,7 +75,9 @@ class ConfigurationSingleResource(restful.Resource):
 
             config_manager.update_tank(config_id, args['name'])
             tank = config_manager.get_tank(config_id)
-            return { 'tank': { 'id': config_id, 'name': tank.name } }, 201
+            response = jsonify(tank = tank)
+            response.status_code = 201
+            return response
         else:
             return '', 404
 

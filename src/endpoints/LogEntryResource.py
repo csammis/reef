@@ -67,5 +67,7 @@ class LogEntrySingleResource(restful.Resource):
             abort(404, message='Log entry with ID {} not found'.format(logentry_id))
         event_manager.update_log_entry(logentry_id, entry = args['entry'], entry_time = event.entry_time)
         event.entry = args['entry']
-        return { 'entry' : {'id' : event.id, 'entry': event.entry, 'entry_time': event.entry_time.isoformat()} }, 201
+        response = jsonify(entry = event)
+        response.status_code = 201
+        return response
 
