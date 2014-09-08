@@ -43,6 +43,17 @@ class ModelEncoder(JSONEncoder):
         elif isinstance(o, models.Tank):
             return {'id': o.id,\
                     'name': o.name}
+        elif isinstance(o, models.ScheduledEvent):
+            return {'id': o.id,\
+                    'event_name': o.event_name,\
+                    'on_days': {\
+                        'monday': o.on_monday,\
+                        'tuesday': o.on_tuesday,\
+                        'wednesday': o.on_wednesday,\
+                        'thursday': o.on_thursday,\
+                        'friday': o.on_friday,\
+                        'saturday': o.on_saturday,\
+                        'sunday': o.on_sunday } }
         elif isinstance(o, datetime):
             return o.isoformat()
         else:
@@ -53,6 +64,8 @@ from endpoints import MeasurementResource
 api.add_resource(MeasurementResource.MeasurementResource, '/measurements/')
 api.add_resource(MeasurementResource.MeasurementSingleResource, '/measurements/<int:measurement_id>')
 api.add_resource(MeasurementResource.MeasurementImageResource, '/measurements/<string:tank_name>/<string:as_of>')
+from endpoints import ScheduledEventResource
+api.add_resource(ScheduledEventResource.ScheduledEventResource, '/schedule/<string:tank_name>')
 from endpoints import LogEntryResource
 api.add_resource(LogEntryResource.LogEntryResource, '/logentries/')
 api.add_resource(LogEntryResource.LogEntrySingleResource, '/logentries/<int:logentry_id>')

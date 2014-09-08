@@ -39,6 +39,7 @@ class ConfigManager(object):
         updateDict[MeasurementType.acceptable_range_high] = max(acceptable_range) if acceptable_range is not None else None
 
         DBSession.query(MeasurementType).filter(MeasurementType.id == measurement_type_id).update(updateDict)
+        DBSession.commit()
 
     def get_tank(self, tank_id):
         query = DBSession.query(Tank).filter(Tank.id == tank_id)
@@ -59,6 +60,7 @@ class ConfigManager(object):
     def update_tank(self, tank_id, name):
         updateDict = {Tank.name: name}
         DBSession.query(Tank).filter(Tank.id == tank_id).update(updateDict)
+        DBSession.commit()
 
     def get_scheduled_events(self, tank_id):
         query = DBSession.query(ScheduledEvent).filter(ScheduledEvent.tank_id == tank_id)
