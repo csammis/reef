@@ -65,6 +65,7 @@ api.add_resource(MeasurementResource.MeasurementResource, '/measurements/')
 api.add_resource(MeasurementResource.MeasurementSingleResource, '/measurements/<int:measurement_id>')
 api.add_resource(MeasurementResource.MeasurementImageResource, '/measurements/<string:tank_name>/<string:as_of>')
 from endpoints import ScheduledEventResource
+api.add_resource(ScheduledEventResource.ScheduledEventAllResource, '/schedule/')
 api.add_resource(ScheduledEventResource.ScheduledEventResource, '/schedule/<string:tank_name>')
 from endpoints import LogEntryResource
 api.add_resource(LogEntryResource.LogEntryResource, '/logentries/')

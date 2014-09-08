@@ -35,3 +35,9 @@ class ScheduledEventResource(restful.Resource):
         config_manager.add(se)
         return jsonify(schedule = se)
 
+class ScheduledEventAllResource(restful.Resource):
+    def get(self):
+        retval = {}
+        for tank in config_manager.get_tanks():
+            retval[tank.name] = config_manager.get_scheduled_events(tank.id)
+        return jsonify(all = retval)
