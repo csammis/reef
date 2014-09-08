@@ -19,19 +19,19 @@ thead th {
 }
 
 #measurement_range {
-    width:30%;
+    width:25%;
 }
 
 #measurement_control {
-    width:10%;
+    width:15%;
 }
 
 #tank_name {
-    width:90%;
+    width:85%;
 }
 
 #tank_control {
-    width:10%;
+    width:15%;
 }
 
 .table_header th {

@@ -163,6 +163,7 @@
         $('#submit_new_tank').button().click(addNewTank);
         bindInputsToKeyHandler('.tank_new_entry', addNewTank);
         bindInputsToKeyHandler('.measurement_new_entry', addNewMeasurement);
+        $('#tabs').tabs();
 
         sendConfigRequests();
     };
