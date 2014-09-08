@@ -25,6 +25,7 @@ from models.EventManager import EventManager
 from models.MeasurementType import MeasurementType
 from models.ConfigManager import ConfigManager
 from models.Tank import Tank
+from models.ScheduledEvent import ScheduledEvent
 
 def has_minimum_setup():
     return True if DBSession.query(Tank).count() > 0 else False

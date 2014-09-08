@@ -1,6 +1,7 @@
 from models import DBSession
 from models.MeasurementType import MeasurementType
 from models.Tank import Tank
+from models.ScheduledEvent import ScheduledEvent
 from models.InUseException import InUseException
 from sqlalchemy.exc import IntegrityError
 
@@ -58,3 +59,7 @@ class ConfigManager(object):
     def update_tank(self, tank_id, name):
         updateDict = {Tank.name: name}
         DBSession.query(Tank).filter(Tank.id == tank_id).update(updateDict)
+
+    def get_scheduled_events(self, tank_id):
+        query = DBSession.query(ScheduledEvent).filter(ScheduledEvent.tank_id == tank_id)
+        return query.order_by(ScheduledEvent.event_name.asc()).all()
