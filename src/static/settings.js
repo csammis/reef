@@ -2,6 +2,19 @@
 
     var DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+    function valForDayOfWeek(days, i) {
+        switch (i) {
+            case 0: return days.sunday;
+            case 1: return days.monday;
+            case 2: return days.tuesday;
+            case 3: return days.wednesday;
+            case 4: return days.thursday;
+            case 5: return days.friday;
+            case 6: return days.saturday;
+        }
+        return undefined;
+    }
+
     function sendConfigRequests() {
         doJqueryAjax('/configs/measurements', 'GET', function(json) {
             var $grid = $('#measurements_grid');
@@ -58,13 +71,50 @@
     }
 
     function createScheduledEventListItem(se) {
-        var $li = $('<li>').attr('id', 'schedule-event-' + se.id).html(se.event_name + ' ' + getPrettyStringForDays(se.on_days));
+        var $li = $('<li>').attr('id', 'schedule-event-' + se.id);
+        var $contents = $('<span>');
+        $('<span>').attr('data', se.event_name).html(getPrettyStringForScheduledTask(se)).click(function() {
+            var originals = {
+                spanElement: $(this)
+            };
+
+            var finished = function() {
+                $li.empty().append($contents);
+            };
+
+            var $editTask = $('<span>');
+            var $editInput = $('<input>').attr('id', 'inline-edit-task-' + se.id).val($(this).attr('data')).appendTo($editTask);
+            $editTask.append(' every ').show();
+            appendDayCheckboxesToSpan($editTask, se.id, se.on_days);
+            $('<button>').html('Save').button().addClass('inline-button').click(function() {
+                var postdata = {
+                    event_name: $editInput.val(),
+                    on_days: getSelectedDaysForName(se.id)
+                };
+
+                doJqueryAjax('/schedule/' + se.id, 'PUT', function (json) {
+                    originals.spanElement.html(getPrettyStringForScheduledTask(json.schedule));
+                    finished();
+                }, postdata);
+            }).appendTo($editTask);
+            $('<button>').html('Cancel').button().addClass('inline-button').click(finished).appendTo($editTask);
+
+            $contents.detach();
+            $li.append($editTask);
+            $('#inline-edit-task-' + se.id).focus().select();
+
+        }).hoverize().appendTo($contents);
         $('<a>').attr('href', '#').html('Delete').addClass('delete-link').click(function () {
             doJqueryAjax('/schedule/' + se.id, 'DELETE', function(json) {
                 $('#schedule-event-' + se.id).fadeRemove();
             });
-        }).appendTo($li);
+        }).appendTo($contents);
+        $contents.appendTo($li);
         return $li;
+    }
+
+    function getPrettyStringForScheduledTask(se) {
+        return se.event_name + ' ' + getPrettyStringForDays(se.on_days);
     }
 
     function onClickAddNewTask() {
@@ -81,7 +131,7 @@
         var $addTask = $('<span>');
         $('<input>').attr('id', 'inline-add-task-' + name).appendTo($addTask);
         $addTask.append(' every ').show();
-        appendDaysToSpan($addTask, name);
+        appendDayCheckboxesToSpan($addTask, name);
         $('<button>').html('Add').button().addClass('inline-button').click(function() {
             var postdata = {
                 event_name: $('#inline-add-task-' + name).val(),
@@ -108,9 +158,13 @@
         return days;
     }
 
-    function appendDaysToSpan($span, name) {
+    function appendDayCheckboxesToSpan($span, name, existingValues) {
         for (var i = 0; i < 7; i++) {
-            $span.append($('<input>').attr('type', 'checkbox').attr('id', 'new-' + i + name)).append(' ' + DAYS_OF_WEEK[i] + ' ');
+            var $input = $('<input>').attr('type', 'checkbox').attr('id', 'new-' + i + name);
+            if (existingValues !== undefined) {
+                $input.prop('checked', valForDayOfWeek(existingValues, i));
+            }
+            $span.append($input).append(' ' + DAYS_OF_WEEK[i] + ' ');
         }
     }
 
