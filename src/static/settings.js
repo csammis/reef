@@ -30,13 +30,13 @@
 
     function getPrettyStringForDays(days) {
         var retval = new Array();
+        if (days.sunday) retval.push('Sunday');
         if (days.monday) retval.push('Monday');
         if (days.tuesday) retval.push('Tuesday');
         if (days.wednesday) retval.push('Wednesday');
         if (days.thursday) retval.push('Thursday');
         if (days.friday) retval.push('Friday');
         if (days.saturday) retval.push('Saturday');
-        if (days.sunday) retval.push('Sunday');
         
         if (retval.length > 0) {
             return 'every ' + retval.join(', ');
@@ -49,12 +49,22 @@
         var $section = $('<div>').addClass('schedule-for').html('Schedule for tank ' + config.name + ':');
         var $list = $('<ul>').addClass('schedule-list').appendTo($section);
         for (var i = 0; i < config.schedule.length; i++) {
-            $('<li>').html(config.schedule[i].event_name + ' ' + getPrettyStringForDays(config.schedule[i].on_days)).appendTo($list);
+            $list.append(createScheduledEventListItem(config.schedule[i]));
         }
         $addNewElement = $('<li>').attr('id', 'new-entry-' + config.name);
         $('<a>').attr('href', '#').attr('data', config.name).html('Add new scheduled task').click(onClickAddNewTask).appendTo($addNewElement);
         $addNewElement.appendTo($list);
         return $section;
+    }
+
+    function createScheduledEventListItem(se) {
+        var $li = $('<li>').attr('id', 'schedule-event-' + se.id).html(se.event_name + ' ' + getPrettyStringForDays(se.on_days));
+        $('<a>').attr('href', '#').html('Delete').addClass('delete-link').click(function () {
+            doJqueryAjax('/schedule/' + se.id, 'DELETE', function(json) {
+                $('#schedule-event-' + se.id).fadeRemove();
+            });
+        }).appendTo($li);
+        return $li;
     }
 
     function onClickAddNewTask() {
@@ -79,7 +89,7 @@
             };
             
             doJqueryAjax('/schedule/' + name, 'POST', function (json) {
-                originals.lastLiElement.before($('<li>').html(json.schedule.event_name + ' ' + getPrettyStringForDays(json.schedule.on_days)));
+                originals.lastLiElement.before(createScheduledEventListItem(json.schedule));
                 finished();
             }, postdata);
         }).appendTo($addTask);

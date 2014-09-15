@@ -46,3 +46,11 @@ thead th {
 .inline-edit {
     width:80%;
 }
+
+.schedule-list li {
+    padding-bottom:0.2em;
+}
+
+.delete-link {
+    padding-left:1em;
+}
