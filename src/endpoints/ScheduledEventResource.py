@@ -21,10 +21,13 @@ class ScheduledEventResource(restful.Resource):
         if tank is None:
             abort(400, message="Tank with name '{}' not found".format(tank_name))
         args = post_event_args.parse_args()
+        if len(args['event_name']) == 0:
+            abort(400, message="Required field 'event_name' cannot be blank")
+
         se = models.ScheduledEvent(tank.id, args['event_name'])
         days = args['on_days[]']
         if days is None:
-            days = range(7)
+            days = [] 
         se.on_sunday = True if 0 in days else False
         se.on_monday = True if 1 in days else False
         se.on_tuesday = True if 2 in days else False

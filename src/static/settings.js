@@ -1,5 +1,7 @@
 (function() {
 
+    var DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
     function sendConfigRequests() {
         doJqueryAjax('/configs/measurements', 'GET', function(json) {
             var $grid = $('#measurements_grid');
@@ -49,7 +51,57 @@
         for (var i = 0; i < config.schedule.length; i++) {
             $('<li>').html(config.schedule[i].event_name + ' ' + getPrettyStringForDays(config.schedule[i].on_days)).appendTo($list);
         }
+        $addNewElement = $('<li>').attr('id', 'new-entry-' + config.name);
+        $('<a>').attr('href', '#').attr('data', config.name).html('Add new scheduled task').click(onClickAddNewTask).appendTo($addNewElement);
+        $addNewElement.appendTo($list);
         return $section;
+    }
+
+    function onClickAddNewTask() {
+        var name = $(this).attr('data');
+        var originals = {
+            linkElement: $(this),
+            lastLiElement: $(this).parent()
+        };
+
+        var finished = function() {
+            originals.lastLiElement.empty().append(originals.linkElement);
+        };
+
+        var $addTask = $('<span>');
+        $('<input>').attr('id', 'inline-add-task-' + name).appendTo($addTask);
+        $addTask.append(' every ').show();
+        appendDaysToSpan($addTask, name);
+        $('<button>').html('Add').button().addClass('inline-button').click(function() {
+            var postdata = {
+                event_name: $('#inline-add-task-' + name).val(),
+                on_days: getSelectedDaysForName(name)
+            };
+            
+            doJqueryAjax('/schedule/' + name, 'POST', function (json) {
+                originals.lastLiElement.before($('<li>').html(json.schedule.event_name + ' ' + getPrettyStringForDays(json.schedule.on_days)));
+                finished();
+            }, postdata);
+        }).appendTo($addTask);
+        $('<button>').html('Cancel').button().addClass('inline-button').click(finished).appendTo($addTask);
+        
+        originals.linkElement.detach();
+        originals.lastLiElement.empty().append($addTask);
+        $('#inline-add-task-' + name).focus().select();
+    }
+
+    function getSelectedDaysForName(name) {
+        var days = new Array();
+        for (var i = 0; i < 7; i++) {
+            if ($('#new-' + i + name).is(':checked')) { days.push(i); }
+        }
+        return days;
+    }
+
+    function appendDaysToSpan($span, name) {
+        for (var i = 0; i < 7; i++) {
+            $span.append($('<input>').attr('type', 'checkbox').attr('id', 'new-' + i + name)).append(' ' + DAYS_OF_WEEK[i] + ' ');
+        }
     }
 
     function buildTank(config) {
@@ -245,9 +297,13 @@
             .appendTo(originals.controlElement);
     };
 
-    function inlineEditize($element, id) {
+    function inlineEditize($element, id, leaveBlank) {
         var value = $element.html();
-        $element.empty().append($('<input>').attr('type','text').attr('id',id).addClass('inline-edit').val(value));
+        var $input = $('<input>').attr('type','text').attr('id',id).addClass('inline-edit');
+        if (leaveBlank === undefined || leaveBlank == false) {
+            $input.val(value);
+        }
+        $element.empty().append($input);
     };
 
 })();
