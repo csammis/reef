@@ -1,0 +1,31 @@
+{% macro render_schedule_day(title, id, attr) -%}
+<div id="{{id}}">
+<h3>{{title}}</h3>
+<ul>
+    {% for e in schedule|selectattr(attr, 'is_true') %}
+    <li>{{ e.event_name }}</li>
+    {% endfor %}
+</ul>
+</div>
+{%- endmacro %}
+{%if tank_name is not defined %}
+{%include 'header.inc.html' %}
+<div id="main">
+    <div id="tabs">
+        <ul></ul>
+        <div id="clear">&nbsp;</div>
+    </div>
+</div>
+{%include 'footer.inc.html' %}
+{%else%}
+<div id="tank_schedule" rpi-data="{{tank_name}}">
+    <h2>Weekly Schedule for {{tank_name}}</h2>
+    {{ render_schedule_day('Sunday', 'day-0', 'on_sunday') }}
+    {{ render_schedule_day('Monday', 'day-1', 'on_monday') }}
+    {{ render_schedule_day('Tuesday', 'day-2', 'on_tuesday') }}
+    {{ render_schedule_day('Wednesday', 'day-3', 'on_wednesday') }}
+    {{ render_schedule_day('Thursday', 'day-4', 'on_thursday') }}
+    {{ render_schedule_day('Friday', 'day-5', 'on_friday') }}
+    {{ render_schedule_day('Saturday', 'day-6', 'on_saturday') }}
+</div>
+{%endif%}
