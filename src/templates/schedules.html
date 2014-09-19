@@ -1,6 +1,6 @@
-{% macro render_schedule_day(title, class, attr) -%}
+{% macro render_schedule_day(class, attr) -%}
 <div class="{{class}} day">
-<h3>{{title}}</h3>
+<h3></h3>
 <ul>
     {% for e in schedule|selectattr(attr, 'is_true') %}
     <li>{{ e.event_name }}</li>
@@ -20,17 +20,28 @@
 {%else%}
 <div id="tank_schedule" rpi-data="{{tank_name}}">
     <h2>Weekly Schedule for {{tank_name}}</h2>
-    {{ render_schedule_day('Sunday', 'day-0', 'on_sunday') }}
-    {{ render_schedule_day('Monday', 'day-1', 'on_monday') }}
-    {{ render_schedule_day('Tuesday', 'day-2', 'on_tuesday') }}
-    {{ render_schedule_day('Wednesday', 'day-3', 'on_wednesday') }}
-    {{ render_schedule_day('Thursday', 'day-4', 'on_thursday') }}
-    {{ render_schedule_day('Friday', 'day-5', 'on_friday') }}
-    {{ render_schedule_day('Saturday', 'day-6', 'on_saturday') }}
+    {{ render_schedule_day('day-0', 'on_sunday') }}
+    {{ render_schedule_day('day-1', 'on_monday') }}
+    {{ render_schedule_day('day-2', 'on_tuesday') }}
+    {{ render_schedule_day('day-3', 'on_wednesday') }}
+    {{ render_schedule_day('day-4', 'on_thursday') }}
+    {{ render_schedule_day('day-5', 'on_friday') }}
+    {{ render_schedule_day('day-6', 'on_saturday') }}
     <script>
         (function () {
-            var day = new Date().getDay();
-            $('.day-' + day).addClass('schedule-today');
+            var date = new Date();
+            var dow = date.getDay();
+
+            for (var i = 0; i < 7; i++) {
+                var diff = (i - dow);
+                var displayDate = new Date(date.getTime());
+                displayDate.setDate(displayDate.getDate() + diff);
+                $('.day-' + i).find('h3').html(DAYS_OF_WEEK[displayDate.getDay()] + ' ' + MONTHS[displayDate.getMonth()] + ' ' + displayDate.getDate());
+                if (i == dow) {
+                    $('.day-' + dow).addClass('schedule-today');
+                }
+            }
+
         })();
     </script>
 </div>

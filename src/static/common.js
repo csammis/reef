@@ -1,3 +1,8 @@
+// Constants and common functions
+var DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+
 function bindInputsToKeyHandler(selector, enterPressed, escPressed) {
     $(selector).find('input').keydown(function(event) {
         if (event.which == 13 && enterPressed !== undefined) {

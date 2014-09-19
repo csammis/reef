@@ -1,7 +1,5 @@
 (function() {
 
-    var DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
     function valForDayOfWeek(days, i) {
         switch (i) {
             case 0: return days.sunday;
