@@ -61,7 +61,6 @@ def schedules():
     return render_template('schedules.html',
             title='Schedules',
             libraries=['jquery', 'jquery-ui'],
-            stylesheet=url_for('static', filename='schedules.css'),
             script=url_for('static', filename='schedules.js'))
 
 @app.route('/schedules/<tank_name>/')
