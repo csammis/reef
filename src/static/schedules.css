@@ -1,0 +1,12 @@
+.day {
+    padding-left:0.5em;
+    padding-right:0.5em;
+}
+
+.day ul {
+    padding-left:1.5em;
+}
+
+.schedule-today {
+    border:dashed 1px gray;
+}

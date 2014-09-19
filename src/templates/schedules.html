@@ -1,5 +1,5 @@
-{% macro render_schedule_day(title, id, attr) -%}
-<div id="{{id}}">
+{% macro render_schedule_day(title, class, attr) -%}
+<div class="{{class}} day">
 <h3>{{title}}</h3>
 <ul>
     {% for e in schedule|selectattr(attr, 'is_true') %}
@@ -27,5 +27,11 @@
     {{ render_schedule_day('Thursday', 'day-4', 'on_thursday') }}
     {{ render_schedule_day('Friday', 'day-5', 'on_friday') }}
     {{ render_schedule_day('Saturday', 'day-6', 'on_saturday') }}
+    <script>
+        (function () {
+            var day = new Date().getDay();
+            $('.day-' + day).addClass('schedule-today');
+        })();
+    </script>
 </div>
 {%endif%}
