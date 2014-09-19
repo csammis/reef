@@ -7,10 +7,15 @@
             var tanks = json.tanks;
             var $tabs = $('#tabs');
             var $list = $tabs.find('ul').first();
+            var tabOptions = { };
             for (var i = 0; i < tanks.length; i++) {
                 $('<li>').attr('rpi-data', tanks[i].id).append($('<a>').attr('href', tanks[i].name).html(tanks[i].name)).appendTo($list);
+                if (window.location.hash == '#' + tanks[i].name) {
+                    tabOptions['active'] = i;
+                }
             }
-            $tabs.tabs();
+
+            $tabs.tabs(tabOptions);
         });
     };
 
