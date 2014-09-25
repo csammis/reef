@@ -47,10 +47,13 @@ class ConfigManager(object):
     def update_measurement_type(measurement_type_id, label, units, acceptable_range):
         """ Update a MeasurementType """
         update_dict = {MeasurementType.label: label, MeasurementType.units: units}
-        update_dict[MeasurementType.acceptable_range_low] = min(acceptable_range) if acceptable_range is not None else None
-        update_dict[MeasurementType.acceptable_range_high] = max(acceptable_range) if acceptable_range is not None else None
+        update_dict[MeasurementType.acceptable_range_low] = (min(acceptable_range)
+                                                             if acceptable_range is not None else None)
+        update_dict[MeasurementType.acceptable_range_high] = (max(acceptable_range)
+                                                              if acceptable_range is not None else None)
 
-        DBSession().query(MeasurementType).filter(MeasurementType.id == measurement_type_id).update(update_dict)
+        (DBSession().query(MeasurementType).filter(MeasurementType.id == measurement_type_id)
+         .update(update_dict))
         DBSession().commit()
 
     @staticmethod

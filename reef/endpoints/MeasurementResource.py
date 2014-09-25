@@ -14,7 +14,8 @@ get_measurement_args.add_argument('end', type=str)
 
 post_measurement_args = reqparse.RequestParser()
 post_measurement_args.add_argument('tank_id', type=int, required=True, help="'tank_id' must be supplied")
-post_measurement_args.add_argument('measurement_type_id', type=int, required=True, help="'measurement_type_id' must be supplied")
+post_measurement_args.add_argument('measurement_type_id', type=int, required=True,
+                                   help="'measurement_type_id' must be supplied")
 post_measurement_args.add_argument('value', type=float, required=True, help="'value' must be supplied")
 post_measurement_args.add_argument('time', type=str)
 
@@ -30,7 +31,8 @@ class MeasurementResource(flask_restful.Resource):
             trange['start'] = try_get_time(args, 'start')
         if args['end'] is not None:
             trange['end'] = try_get_time(args, 'end')
-        return jsonify(measurements=event_manager.get_measurements(parameters=parameters, tank_id=args['tank_id'], timerange=trange))
+        return jsonify(measurements=event_manager.get_measurements(parameters=parameters,
+                                                                   tank_id=args['tank_id'], timerange=trange))
 
     def post(self):
         """ POST /measurements/ """
@@ -38,13 +40,15 @@ class MeasurementResource(flask_restful.Resource):
 
         measurement_type = config_manager.get_measurement_type(args['measurement_type_id'])
         if measurement_type is None:
-            abort(400, message="Measurement type with ID '{}' is not valid".format(args['measurement_type_id']))
+            abort(400,
+                  message="Measurement type with ID '{}' is not valid".format(args['measurement_type_id']))
 
         measurement_time = None
         if args['time'] is not None:
             measurement_time = try_get_time(args, 'time')
 
-        event = models.Measurement(tank_id=args['tank_id'], measurement_type_id=measurement_type.id, measurement_time=measurement_time, value=args['value'])
+        event = models.Measurement(tank_id=args['tank_id'], measurement_type_id=measurement_type.id,
+                                   measurement_time=measurement_time, value=args['value'])
         event_manager.add(event)
         return jsonify(event=event)
 

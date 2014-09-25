@@ -58,7 +58,8 @@ class EventManager(object):
     @staticmethod
     def get_latest_measurements(tank_id, as_of):
         """ Get a list of Measurements for a tank as of a specified date """
-        query = (DBSession().query(func.max(Measurement.measurement_time), MeasurementType.label, Measurement.value, MeasurementType.units)
+        query = (DBSession().query(func.max(Measurement.measurement_time), MeasurementType.label,
+                                   Measurement.value, MeasurementType.units)
                  .join(MeasurementType)
                  .filter(Measurement.tank_id == tank_id)
                  .filter(Measurement.measurement_time <= as_of)
@@ -82,5 +83,6 @@ class EventManager(object):
     @staticmethod
     def update_log_entry(logentry_id, entry, entry_time):
         """ Update a LogEntry """
-        DBSession().query(LogEntry).filter(LogEntry.id == logentry_id).update({LogEntry.entry: entry, LogEntry.entry_time: entry_time})
+        update_dict = {LogEntry.entry: entry, LogEntry.entry_time: entry_time}
+        DBSession().query(LogEntry).filter(LogEntry.id == logentry_id).update(update_dict)
         DBSession().commit()

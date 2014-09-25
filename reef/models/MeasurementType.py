@@ -20,4 +20,5 @@ class MeasurementType(Base):
 
     def acceptable_range(self):
         """ Get a range that has been configured as acceptable for this measurement type """
-        return [self.acceptable_range_low, self.acceptable_range_high] if self.acceptable_range_low is not None else None
+        return ([self.acceptable_range_low, self.acceptable_range_high]
+                if self.acceptable_range_low is not None else None)

@@ -33,7 +33,8 @@ class ConfigurationResource(flask_restful.Resource):
             if len(args['label']) == 0:
                 abort(400, message="Required field 'label' cannot be blank")
 
-            config = models.MeasurementType(args['label'], units=args['units'], acceptable_range=args['acceptable_range[]'])
+            config = models.MeasurementType(args['label'],
+                                            units=args['units'], acceptable_range=args['acceptable_range[]'])
             config_manager.add(config)
             return jsonify(measurement_type=config)
         elif config_type == 'tanks':
@@ -64,7 +65,8 @@ class ConfigurationSingleResource(flask_restful.Resource):
             if config is None:
                 abort(404, message='Measurement type with ID {} not found'.format(config_id))
 
-            config_manager.update_measurement_type(config_id, args['label'], args['units'], args['acceptable_range[]'])
+            config_manager.update_measurement_type(config_id,
+                                                   args['label'], args['units'], args['acceptable_range[]'])
             config = config_manager.get_measurement_type(config_id)
             response = jsonify(measurement_type=config)
             response.status_code = 201
