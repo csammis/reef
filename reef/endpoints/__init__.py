@@ -1,12 +1,12 @@
 """ Setup and utility methods for the Flask-RESTful API """
-from flask.ext import restful
-from flask.ext.restful import abort
+import flask_restful
+from flask_restful import abort
 from datetime import datetime
 from json import JSONEncoder
 import dateutil.parser
 import models
 
-api = restful.Api()
+api = flask_restful.Api()
 models.initialize_sql('models/reefpi.db')
 event_manager = models.EventManager()
 config_manager = models.ConfigManager()
