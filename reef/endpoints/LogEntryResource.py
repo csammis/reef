@@ -1,7 +1,7 @@
 """ Endpoints for the log entry model object """
 from flask import jsonify
-from flask.ext import restful
-from flask.ext.restful import abort, reqparse
+import flask_restful
+from flask_restful import abort, reqparse
 from endpoints import event_manager, try_get_time
 import models
 
@@ -18,7 +18,7 @@ post_logentry_args.add_argument('tank_id', type=int, required=True, help="'tank_
 post_logentry_args.add_argument('entry', type=str, required=True, help="'entry' must be supplied")
 post_logentry_args.add_argument('time', type=str)
 
-class LogEntryResource(restful.Resource):
+class LogEntryResource(flask_restful.Resource):
     """ GET and POST for lists of log entries """
 
     def get(self):
@@ -46,7 +46,7 @@ class LogEntryResource(restful.Resource):
         event = models.LogEntry(tank_id=args['tank_id'], entry_time=entry_time, entry=args['entry'])
         return jsonify(log_id=event_manager.add(event))
 
-class LogEntrySingleResource(restful.Resource):
+class LogEntrySingleResource(flask_restful.Resource):
     """ GET, PUT, and DELETE for a single log entry """
 
     def get(self, logentry_id):

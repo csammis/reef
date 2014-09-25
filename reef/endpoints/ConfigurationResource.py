@@ -1,7 +1,7 @@
 """ Endpoints for site configuration """
 from flask import jsonify
-from flask.ext import restful
-from flask.ext.restful import reqparse, abort
+import flask_restful
+from flask_restful import reqparse, abort
 from endpoints import config_manager
 import models
 
@@ -13,7 +13,7 @@ post_measurement_config_args.add_argument('acceptable_range[]', type=float, acti
 post_tank_config_args = reqparse.RequestParser()
 post_tank_config_args.add_argument('name', type=str, required=True, help="'name' must be supplied")
 
-class ConfigurationResource(restful.Resource):
+class ConfigurationResource(flask_restful.Resource):
     """ GET and POST for site configurations """
 
     def get(self, config_type):
@@ -49,7 +49,7 @@ class ConfigurationResource(restful.Resource):
             return '', 404
 
 
-class ConfigurationSingleResource(restful.Resource):
+class ConfigurationSingleResource(flask_restful.Resource):
     """ PUT, GET, and DELETE for a single site configuration """
 
     def put(self, config_type, config_id):
@@ -116,6 +116,6 @@ class ConfigurationSingleResource(restful.Resource):
         try:
             config_manager.delete(config)
         except models.InUseException:
-            return {'message': 'Cannot delete configuration: object is in use.'.format(config_id)}, 409
+            return {'message': 'Cannot delete configuration: object is in use.'}, 409
         return '', 204
 

@@ -1,7 +1,7 @@
 """ Endpoints for the scheduled event model object """
 from flask import jsonify
-from flask.ext import restful
-from flask.ext.restful import reqparse, abort
+import flask_restful
+from flask_restful import reqparse, abort
 from endpoints import config_manager
 import models
 
@@ -9,7 +9,7 @@ post_event_args = reqparse.RequestParser()
 post_event_args.add_argument('event_name', type=str, required=True, help="'event_name' must be supplied")
 post_event_args.add_argument('on_days[]', type=int, action='append', default=None)
 
-class ScheduledEventResource(restful.Resource):
+class ScheduledEventResource(flask_restful.Resource):
     """ GET and POST for /schedule/ """
 
     def get(self, tank_name):
@@ -42,7 +42,7 @@ class ScheduledEventResource(restful.Resource):
         config_manager.add(event)
         return jsonify(schedule=event)
 
-class ScheduledEventSingleResource(restful.Resource):
+class ScheduledEventSingleResource(flask_restful.Resource):
     """ PUT and DELETE for a single scheduled event """
 
     def put(self, event_id):
@@ -77,7 +77,7 @@ class ScheduledEventSingleResource(restful.Resource):
         config_manager.delete(event)
         return '', 204
 
-class ScheduledEventAllResource(restful.Resource):
+class ScheduledEventAllResource(flask_restful.Resource):
     """ GET all scheduled events for all tanks from a single call """
 
     def get(self):

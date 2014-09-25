@@ -1,7 +1,7 @@
 """ Endpoints for the tank parameter measurement model object and related features """
 from flask import jsonify, send_file
-from flask.ext import restful
-from flask.ext.restful import abort, reqparse
+import flask_restful
+from flask_restful import abort, reqparse
 from endpoints import event_manager, config_manager, try_get_time, try_parse_time
 import models
 from resources import ParameterImage
@@ -18,7 +18,7 @@ post_measurement_args.add_argument('measurement_type_id', type=int, required=Tru
 post_measurement_args.add_argument('value', type=float, required=True, help="'value' must be supplied")
 post_measurement_args.add_argument('time', type=str)
 
-class MeasurementResource(restful.Resource):
+class MeasurementResource(flask_restful.Resource):
     """ GET and POST for lists of measurements """
 
     def get(self):
@@ -48,7 +48,7 @@ class MeasurementResource(restful.Resource):
         event_manager.add(event)
         return jsonify(event=event)
 
-class MeasurementImageResource(restful.Resource):
+class MeasurementImageResource(flask_restful.Resource):
     """ A resource for returning an image showing parameters as-of a date """
 
     def get(self, tank_name, as_of):
@@ -60,7 +60,7 @@ class MeasurementImageResource(restful.Resource):
         pimg = ParameterImage.ParameterImage()
         return send_file(pimg.get_image_stream(tank.id, as_of_date), mimetype='image/png')
 
-class MeasurementSingleResource(restful.Resource):
+class MeasurementSingleResource(flask_restful.Resource):
     """ GET for a single measurement """
 
     def get(self, measurement_id):
