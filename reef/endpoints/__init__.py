@@ -7,7 +7,7 @@ import dateutil.parser
 import models
 
 api = flask_restful.Api()
-models.initialize_sql('models/reefpi.db')
+models.initialize_sql('reefpi.db')
 event_manager = models.EventManager()
 config_manager = models.ConfigManager()
 
