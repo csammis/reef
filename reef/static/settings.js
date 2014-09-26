@@ -63,7 +63,7 @@
             $list.append(createScheduledEventListItem(config.schedule[i]));
         }
         $addNewElement = $('<li>').attr('id', 'new-entry-' + config.name);
-        $('<a>').attr('href', '#').attr('data', config.name).html('Add new scheduled task').click(onClickAddNewTask).appendTo($addNewElement);
+        $('<a>').attr('href', '#').attr('data-name', config.name).attr('data-id', config.id).html('Add new scheduled task').click(onClickAddNewTask).appendTo($addNewElement);
         $addNewElement.appendTo($list);
         return $section;
     }
@@ -71,7 +71,7 @@
     function createScheduledEventListItem(se) {
         var $li = $('<li>').attr('id', 'schedule-event-' + se.id);
         var $contents = $('<span>');
-        $('<span>').attr('data', se.event_name).html(getPrettyStringForScheduledTask(se)).click(function() {
+        $('<span>').attr('data-name', se.event_name).html(getPrettyStringForScheduledTask(se)).click(function() {
             var originals = {
                 spanElement: $(this)
             };
@@ -81,7 +81,7 @@
             };
 
             var $editTask = $('<span>');
-            var $editInput = $('<input>').attr('id', 'inline-edit-task-' + se.id).val($(this).attr('data')).appendTo($editTask);
+            var $editInput = $('<input>').attr('id', 'inline-edit-task-' + se.id).val($(this).attr('data-name')).appendTo($editTask);
             $editTask.append(' every ').show();
             appendDayCheckboxesToSpan($editTask, se.id, se.on_days);
             $('<button>').html('Save').button().addClass('inline-button').click(function() {
@@ -116,7 +116,8 @@
     }
 
     function onClickAddNewTask() {
-        var name = $(this).attr('data');
+        var name = $(this).attr('data-name');
+        var id = $(this).attr('data-id');
         var originals = {
             linkElement: $(this),
             lastLiElement: $(this).parent()
@@ -127,13 +128,13 @@
         };
 
         var $addTask = $('<span>');
-        $('<input>').attr('id', 'inline-add-task-' + name).appendTo($addTask);
+        $('<input>').attr('id', 'inline-add-task-' + id).appendTo($addTask);
         $addTask.append(' every ').show();
-        appendDayCheckboxesToSpan($addTask, name);
+        appendDayCheckboxesToSpan($addTask, 'tid-' + id);
         $('<button>').html('Add').button().addClass('inline-button').click(function() {
             var postdata = {
-                event_name: $('#inline-add-task-' + name).val(),
-                on_days: getSelectedDaysForName(name)
+                event_name: $('#inline-add-task-' + id).val(),
+                on_days: getSelectedDaysForName('tid-' + id)
             };
             
             doJqueryAjax('/schedule/' + name, 'POST', function (json) {
