@@ -94,6 +94,16 @@ def settings():
                            stylesheet=url_for('static', filename='settings.css'),
                            script=url_for('static', filename='settings.js'))
 
+@app.route('/settings/<setting_type>/')
+def settings_tanks(setting_type):
+    """ Settings: Tanks """
+    if has_minimum_setup() is False:
+        return redirect(url_for('setup'))
+
+    return render_template('settings.html',
+                           setting_type=setting_type,
+                           script=url_for('static', filename='settings-' + setting_type + '.js'))
+
 if __name__ == '__main__':
     app.run(debug=True)
 
